@@ -6,7 +6,7 @@ Trang web thiệp hoa nở tương tác nghệ thuật dành tặng những ngư
 
 ## ✨ Điểm nổi bật
 - **Khởi đầu tinh tế:** Bắt đầu bằng một đóa hoa hồng nhỏ bồng bềnh trong làn gió nhẹ giữa bầu trời xanh trong trẻo.
-- **Hiệu ứng bung nở kì diệu (Cascade Bloom):** Khi chạm vào bông hoa, khu vườn với khoảng 90 đóa trên màn hình rộng (gần 50 đóa trên điện thoại) đồng loạt vươn mình bung nở. Hoa hồng dùng ảnh cắt nền nhiều lớp cánh; các màu gồm hồng, cam đào, xanh bạc hà, lam ngọc, vàng bơ và tím oải hương.
+- **Hiệu ứng bung nở kì diệu (Cascade Bloom):** Khi chạm vào bông hoa, khu vườn với hơn 120 đóa trên màn hình rộng (hơn 60 đóa trên điện thoại) đồng loạt vươn mình bung nở. Các tầng hoa lớn gối lên nhau thành thảm hoa dày; hoa hồng dùng ảnh cắt nền nhiều lớp cánh với các màu hồng, cam đào, xanh bạc hà, lam ngọc, vàng bơ và tím oải hương.
 - **Thiệp chúc mừng đầy cảm xúc:** Sau khi hoa nở rộ, bức thiệp trang nhã tự động xuất hiện với những dòng nhắn gửi dịu dàng, sâu lắng.
 - **Tương tác linh hoạt:** 
   - Nút **"Ngắm vườn hoa"** để thu gọn thiệp và chiêm ngưỡng toàn cảnh khu vườn.

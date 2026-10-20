@@ -316,12 +316,13 @@ html, body {
    HERO FLOWER (Bông hoa hồng đơn đầu tiên ở giữa)
    ========================================================================== */
 .hero-flower-wrapper {
+  --hero-head-size: clamp(140px, 14vw, 270px);
   position: absolute;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 170px;
-  height: 68vh;
+  width: var(--hero-head-size);
+  height: 78vh;
   z-index: 25;
   cursor: pointer;
   display: flex;
@@ -364,8 +365,9 @@ html, body {
 
 /* Bông hoa hồng Hero */
 .hero-rose-head {
-  width: 138px;
-  height: 138px;
+  width: var(--hero-head-size);
+  height: var(--hero-head-size);
+  flex: none;
   position: relative;
   z-index: 6;
   filter: drop-shadow(0 8px 18px rgba(180, 40, 70, 0.22));
@@ -392,7 +394,8 @@ html, body {
 .hero-stem-svg {
   position: relative;
   width: 160px;
-  height: calc(68vh - 120px);
+  height: calc(78vh - var(--hero-head-size) + 15px);
+  flex: none;
   margin-top: -15px;
   z-index: 5;
   overflow: visible;
@@ -791,15 +794,15 @@ html, body {
   }
 
   .hero-flower-wrapper {
-    width: 140px;
+    --hero-head-size: clamp(112px, 28vw, 175px);
     height: 63vh;
   }
   .hero-stem-svg {
-    height: calc(63vh - 100px);
+    height: calc(63vh - var(--hero-head-size) + 15px);
   }
   .hero-rose-head {
-    width: 115px;
-    height: 115px;
+    width: var(--hero-head-size);
+    height: var(--hero-head-size);
   }
   .hero-click-indicator {
     width: 120px;

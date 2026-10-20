@@ -82,12 +82,12 @@ function polarToCart(cx, cy, r, angleDeg) {
 // =============================================================================
 const ROSE_IMAGE_SRC = 'assets/rose-pink.png';
 const ROSE_COLOR_FILTERS = {
-  pink: 'none',
-  peach: 'hue-rotate(36deg) saturate(.86)',
-  mint: 'hue-rotate(128deg) saturate(.74)',
-  blue: 'hue-rotate(215deg) saturate(.8)',
-  cream: 'hue-rotate(72deg) saturate(.66)',
-  lavender: 'hue-rotate(298deg) saturate(.75)'
+  pink: 'saturate(.86) brightness(1.04)',
+  peach: 'hue-rotate(36deg) saturate(.72) brightness(1.1)',
+  mint: 'hue-rotate(128deg) saturate(.62) brightness(1.13)',
+  blue: 'hue-rotate(215deg) saturate(.68) brightness(1.12)',
+  cream: 'hue-rotate(72deg) saturate(.56) brightness(1.13)',
+  lavender: 'hue-rotate(298deg) saturate(.66) brightness(1.1)'
 };
 
 function createRoseImageHTML(palette) {
@@ -215,21 +215,23 @@ function buildGarden() {
 
   const isMobile = window.innerWidth <= 768;
   const containerHeight = container.clientHeight || window.innerHeight;
-  const sizeScale = isMobile ? 0.64 : 1;
+  const sizeScale = isMobile
+    ? Math.min(0.8, window.innerWidth / 520)
+    : Math.min(1.55, Math.max(0.85, window.innerWidth / 1280));
   const gardenColors = [0, 1, 2, 0, 3, 1, 2, 0, 4, 5];
   const gardenPalette = index => COLOR_PALETTES[gardenColors[index % gardenColors.length]];
 
-  // Danh sách các loài hoa được xếp theo 4 tầng lớp để tạo thảm hoa dày đặc không còn kẽ hở
+  // Các tầng hoa gối đầu lên nhau, tạo thành thảm hoa thay vì những cành đứng riêng lẻ.
   const flowerItems = [];
 
-  // TẦNG 1: DƯỚI ĐÁY CÙNG (0% - 14% chiều cao) - 10 đóa hoa lớn xếp sát nhau gối lên nhau phủ kín đáy
-  const countT1 = isMobile ? 12 : 23;
+  // Lớp tiền cảnh phủ sát mép dưới.
+  const countT1 = isMobile ? 13 : 25;
   for (let i = 0; i < countT1; i++) {
     const xPct = (i / (countT1 - 1)) * 96 + 2 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((100 + rand() * 33) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.05 + rand() * 0.16)),
+      sizePx: Math.floor((132 + rand() * 42) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.04 + rand() * 0.15)),
       type: 'rose',
       layer: 28, // Trên cùng trong khu vườn
       palette: gardenPalette(i),
@@ -238,14 +240,14 @@ function buildGarden() {
     });
   }
 
-  // TẦNG 2: TẦNG TRUNG TRƯỚC (12% - 28% chiều cao) - 12 đóa hoa lấp đầy các khe hở của tầng 1
-  const countT2 = isMobile ? 15 : 26;
+  // Lớp hoa lớn thứ hai lấp toàn bộ khe giữa các bông tiền cảnh.
+  const countT2 = isMobile ? 16 : 29;
   for (let i = 0; i < countT2; i++) {
     const xPct = ((i + 0.5) / countT2) * 94 + 3 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((82 + rand() * 28) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.22 + rand() * 0.17)),
+      sizePx: Math.floor((118 + rand() * 43) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.17 + rand() * 0.18)),
       type: 'rose',
       layer: 22,
       palette: gardenPalette(i + 2),
@@ -254,15 +256,15 @@ function buildGarden() {
     });
   }
 
-  // TẦNG 3: TẦNG TRUNG SAU (26% - 42% chiều cao) - 11 đóa hoa hồng & búp nụ xen kẽ
-  const countT3 = isMobile ? 13 : 24;
+  // Lớp giữa vẫn là hoa hồng nở, chỉ xen vài nụ nhỏ.
+  const countT3 = isMobile ? 15 : 29;
   for (let i = 0; i < countT3; i++) {
     const xPct = (i / (countT3 - 1)) * 92 + 4 + (rand() * 5 - 2.5);
-    const isBud = rand() < 0.22;
+    const isBud = rand() < 0.13;
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((isBud ? 49 : 66 + rand() * 22) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.39 + rand() * 0.2)),
+      sizePx: Math.floor((isBud ? 55 : 93 + rand() * 45) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.32 + rand() * 0.2)),
       type: isBud ? 'bud' : 'rose',
       layer: 16,
       palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : gardenPalette(i + 4),
@@ -271,25 +273,41 @@ function buildGarden() {
     });
   }
 
-  // TẦNG 4: TẦNG CÀNH CAO VƯƠN LÊN BẦU TRỜI (42% - 66% chiều cao) - Hoa cúc xoắn tròn & nụ hoa vươn cao như ảnh 2
-  const countT4 = isMobile ? 10 : 21;
+  // Lớp sau tạo mép trên nhấp nhô của thảm hoa.
+  const countT4 = isMobile ? 12 : 25;
   for (let i = 0; i < countT4; i++) {
     const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
-    // Tránh vị trí giữa để không che bông hoa hồng Hero
-    if (Math.abs(xPct - 50) < 9) continue;
-
     const r = rand();
-    const type = r < 0.35 ? 'button' : (r < 0.58 ? 'bud' : 'rose');
-    const sizePx = Math.floor((type === 'button' ? 44 : (type === 'bud' ? 49 : 57)) * sizeScale);
+    const type = r < 0.14 ? 'button' : (r < 0.27 ? 'bud' : 'rose');
+    const sizePx = Math.floor((type === 'button' ? 59 : (type === 'bud' ? 56 : 76 + rand() * 33)) * sizeScale);
 
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: sizePx,
-      heightPx: Math.floor(containerHeight * (0.6 + rand() * 0.23)),
+      heightPx: Math.floor(containerHeight * (0.48 + rand() * 0.19)),
       type: type,
       layer: 11,
       palette: gardenPalette(i),
       bend: (rand() - 0.5) * 28,
+      hasStem: true
+    });
+  }
+
+  // Một ít hoa và nụ vươn cao hai bên, như phần nền xa trong ảnh mẫu.
+  const countT5 = isMobile ? 8 : 17;
+  for (let i = 0; i < countT5; i++) {
+    const xPct = (i / (countT5 - 1)) * 94 + 3 + (rand() * 3 - 1.5);
+    if (Math.abs(xPct - 50) < 8) continue;
+    const r = rand();
+    const type = r < 0.28 ? 'button' : (r < 0.48 ? 'bud' : 'rose');
+    flowerItems.push({
+      xPct: Math.max(1, Math.min(99, xPct)),
+      sizePx: Math.floor((type === 'bud' ? 44 : 54 + rand() * 30) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.65 + rand() * 0.18)),
+      type,
+      layer: 7,
+      palette: gardenPalette(i + 5),
+      bend: (rand() - 0.5) * 25,
       hasStem: true
     });
   }
