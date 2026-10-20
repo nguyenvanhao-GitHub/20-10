@@ -498,28 +498,26 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 26px;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(224, 158, 171, 0.7);
+  padding: 10px 24px;
+  background: #fbf5ed;
+  border: 1.5px solid #d4c0b2;
   border-radius: 9999px;
-  color: #632d39;
+  color: #4e2c34;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
   letter-spacing: 0.3px;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(180, 90, 110, 0.18);
+  box-shadow: 0 4px 15px rgba(80, 40, 30, 0.12);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .btn-garden-action:hover {
-  background: rgba(255, 255, 255, 0.96);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 26px rgba(180, 90, 110, 0.26);
-  border-color: rgba(220, 120, 145, 0.88);
-  color: #4b1c26;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(80, 40, 30, 0.18);
+  border-color: #c4a898;
+  color: #3b1e24;
 }
 
 .btn-garden-action:active {
