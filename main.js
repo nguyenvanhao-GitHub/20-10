@@ -98,12 +98,16 @@ function createRoseImageHTML(palette) {
 // 3. NỤ HOA CẮT NỀN THEO ẢNH MẪU
 // =============================================================================
 const BUD_IMAGE_SRCS = {
+  red: 'assets/rosebud-red.png?v=6',
+  azure: 'assets/rosebud-azure.png?v=6',
+  turquoise: 'assets/rosebud-turquoise.png?v=6',
+  white: 'assets/rosebud-white.png?v=6',
   blue: 'assets/rosebud-blue.png?v=6',
   peach: 'assets/rosebud-peach.png?v=6'
 };
+const BUD_VARIANTS = ['red', 'azure', 'turquoise', 'white', 'blue', 'peach'];
 
-function createBudImageHTML(palette, index) {
-  const variant = palette.type === 'blue' ? 'blue' : palette.type === 'peach' ? 'peach' : index % 2 ? 'blue' : 'peach';
+function createBudImageHTML(variant) {
   return `<img class="rosebud-image" src="${BUD_IMAGE_SRCS[variant]}" alt="" draggable="false" loading="eager" decoding="async">`;
 }
 // =============================================================================
@@ -324,9 +328,27 @@ function buildGarden() {
     }
   }
 
-  // Tạo phần tử DOM tối ưu hóa hiệu năng cao bằng DocumentFragment
-  const fragment = document.createDocumentFragment();
+  // Mỗi màu nụ có ít nhất một vị trí riêng, kể cả trên màn hình nhỏ.
+  const accentBudCount = isMobile ? 6 : 12;
+  for (let i = 0; i < accentBudCount; i++) {
+    const xPct = ((i + 0.5) / accentBudCount) * 96 + 2 + (rand() * 4 - 2);
+    flowerItems.push({
+      xPct: Math.max(1, Math.min(99, xPct)),
+      sizePx: Math.floor((42 + rand() * 16) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.38 + rand() * 0.27)),
+      type: 'bud',
+      budVariant: BUD_VARIANTS[i % BUD_VARIANTS.length],
+      layer: 15,
+      palette: COLOR_PALETTES[3],
+      bend: (rand() - 0.5) * 18,
+      stemLengthPx: Math.floor((70 + rand() * 22) * sizeScale),
+      hasStem: true
+    });
+  }
 
+  // Tạo phần tử DOM cho toàn bộ khu vườn bằng DocumentFragment.
+  let budIndex = 0;
+  const fragment = document.createDocumentFragment();
   flowerItems.forEach((item, idx) => {
     const distFromCenter = Math.abs(item.xPct - 50) / 50;
     // Tốc độ bung nở nhanh, gối đầu nhịp nhàng siêu tốc
@@ -355,7 +377,8 @@ function buildGarden() {
       headWrap.innerHTML = createOrganicButtonSVG(item.palette, `g-${idx}`, item.sizePx);
     } else if (item.type === 'bud') {
       headWrap.classList.add('bud-head');
-      headWrap.innerHTML = createBudImageHTML(item.palette, idx);
+      headWrap.innerHTML = createBudImageHTML(item.budVariant || BUD_VARIANTS[budIndex % BUD_VARIANTS.length]);
+      budIndex++;
     } else {
       headWrap.innerHTML = createRoseImageHTML(item.palette);
     }
