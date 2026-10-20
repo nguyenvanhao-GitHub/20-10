@@ -9,6 +9,12 @@ Trang web thiệp hoa nở tương tác nghệ thuật dành tặng những ngư
 - **Hiệu ứng bung nở kì diệu (Cascade Bloom):** Khi chạm vào bông hoa, khu vườn với hơn 200 đóa trên màn hình rộng (hơn 100 đóa trên điện thoại) bung nở nhanh và đan xen chi chít thành thảm hoa kín đáy. Các nụ đỏ, xanh lam, xanh ngọc, trắng, xanh–trắng và cam–kem đều dùng ảnh cắt nền tạo theo ảnh mẫu.
 - **Thân và lá hoa:** Cành xanh mảnh với hai lá cắt nền tạo bằng ImageGen theo ảnh mẫu, dùng cho bông hoa mở đầu và các cành trong vườn.
 - **Tối ưu hóa tốc độ tải web:** Tinh chỉnh các ảnh hoa chính, áp dụng `DocumentFragment`, tăng tốc phần cứng GPU và rút ngắn hoạt cảnh nở hoa.
+- **Đàn bướm 3D dập dờn trong khu vườn:** Khi hoa nở rộ, những cánh bướm pastel nhẹ nhàng cất cánh lượn quanh các đóa hoa. Khi chạm vào bướm, bướm sẽ xoay vòng tung bụi tiên và gửi lời nhắn may mắn!
+- **Chạm hoa - Lời nhắn thì thầm yêu thương:** Chạm vào bất kỳ bông hoa nào trong vườn, đóa hoa sẽ nảy nhẹ cùng tiếng chuông pha lê, tung chùm bụi tiên và gửi đến bạn nữ một lời chúc ngọt ngào ngẫu nhiên.
+- **Vệt sao lấp lánh (Magic Stardust Trail):** Khi lướt ngón tay hoặc rê chuột qua màn hình, những dải sao bụi tiên ấm áp sẽ lấp lánh bay theo đầu ngón tay.
+- **Đom đóm & Bụi phấn phát sáng:** Những đốm sáng đom đóm vàng dịu dàng bay lơ lửng, tạo nên không gian khu vườn thần tiên đầy chất thơ.
+- **Thiệp chúc mừng ánh kim sang trọng:** Khi mở thiệp, luồng ánh sáng kim lướt nhẹ qua bề mặt giấy thiệp kèm pháo hoa cánh hoa bay lãng mạn.
+- **Thiết kế Responsive hoàn hảo cho mọi thiết bị:** Tự động co giãn mượt mà từ iPhone nhỏ gọn (iPhone SE), iPhone tai thỏ / Dynamic Island (hỗ trợ Safe Area), iPad/máy tính bảng xoay ngang dọc đến màn hình máy tính 4K và Ultrawide.
 - **Thiệp chúc mừng đầy cảm xúc:** Sau khi hoa nở rộ, bức thiệp trang nhã tự động xuất hiện với những dòng nhắn gửi dịu dàng, sâu lắng.
 - **Tương tác linh hoạt:** 
   - Nút **"Ngắm vườn hoa"** để thu gọn thiệp và chiêm ngưỡng toàn cảnh khu vườn.

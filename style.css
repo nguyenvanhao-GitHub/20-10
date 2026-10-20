@@ -603,6 +603,7 @@ html, body {
   width: 100%;
   max-width: 440px;
   max-height: 88vh;
+  max-height: calc(100dvh - 50px);
   background: var(--color-card-bg);
   background-image: 
     radial-gradient(circle at 10% 10%, rgba(255, 240, 245, 0.6) 0%, transparent 60%),
@@ -613,11 +614,43 @@ html, body {
   box-shadow: 
     0 16px 38px rgba(90, 40, 50, 0.18),
     0 3px 10px rgba(0, 0, 0, 0.04);
+  overflow-x: hidden;
   overflow-y: auto;
   transform: translateY(35px) scale(0.96);
   transition: transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.15), opacity 0.4s ease;
   scrollbar-width: thin;
   scrollbar-color: rgba(200, 150, 160, 0.4) transparent;
+}
+
+/* Ánh kim lướt qua thiệp khi mở */
+.card-modal-container::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: linear-gradient(
+    65deg,
+    transparent 42%,
+    rgba(255, 235, 240, 0.45) 48%,
+    rgba(255, 255, 255, 0.8) 51%,
+    rgba(255, 235, 240, 0.45) 54%,
+    transparent 60%
+  );
+  transform: rotate(25deg) translateY(-120%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.card-modal-backdrop.open .card-modal-container::after {
+  opacity: 1;
+  animation: cardShimmer 1.5s ease-out 0.35s forwards;
+}
+
+@keyframes cardShimmer {
+  0% { transform: rotate(25deg) translateY(-120%); }
+  100% { transform: rotate(25deg) translateY(120%); }
 }
 
 .card-modal-backdrop.open .card-modal-container {
@@ -792,19 +825,218 @@ html, body {
 }
 
 /* ==========================================================================
-   RESPONSIVE (Mobile & Tablet)
+   BUTTERFLIES (Bướm bay dập dờn trong vườn hoa)
    ========================================================================== */
+.garden-butterflies-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 29;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.garden-butterflies-container.active {
+  opacity: 1;
+}
+
+.butterfly {
+  position: absolute;
+  width: 28px;
+  height: 22px;
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 8px rgba(120, 40, 60, 0.25));
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+  will-change: transform;
+}
+
+.butterfly:hover {
+  transform: scale(1.35) !important;
+}
+
+.butterfly .wing {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 20px;
+  border-radius: 65% 55% 20% 60%;
+  opacity: 0.94;
+}
+
+.butterfly .wing-left {
+  left: 0;
+  transform-origin: right center;
+  animation: wingFlapLeft 0.22s ease-in-out infinite alternate;
+}
+
+.butterfly .wing-right {
+  left: 14px;
+  border-radius: 55% 65% 60% 20%;
+  transform-origin: left center;
+  animation: wingFlapRight 0.22s ease-in-out infinite alternate;
+}
+
+.butterfly .wing-center {
+  position: absolute;
+  left: 13px;
+  top: 3px;
+  width: 2px;
+  height: 14px;
+  background: #5a2c38;
+  border-radius: 2px;
+}
+
+.b-pink .wing {
+  background: radial-gradient(circle at 70% 30%, #fff0f5 0%, #ff8da1 60%, #e91e63 100%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.b-gold .wing {
+  background: radial-gradient(circle at 70% 30%, #fffde7 0%, #ffd54f 60%, #ff8f00 100%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.b-lavender .wing {
+  background: radial-gradient(circle at 70% 30%, #f3e5f5 0%, #ce93d8 60%, #8e24aa 100%);
+  border: 0.5px solid rgba(255, 255, 255, 0.85);
+}
+
+@keyframes wingFlapLeft {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(68deg); }
+}
+
+@keyframes wingFlapRight {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(-68deg); }
+}
+
+/* Đường bay lượn lãng mạn */
+.b-pink {
+  left: 15%;
+  bottom: 26%;
+  animation: flyPattern1 18s ease-in-out infinite;
+}
+
+.b-gold {
+  right: 18%;
+  bottom: 36%;
+  animation: flyPattern2 22s ease-in-out infinite 2s;
+}
+
+.b-lavender {
+  left: 56%;
+  bottom: 22%;
+  animation: flyPattern3 20s ease-in-out infinite 5s;
+}
+
+@keyframes flyPattern1 {
+  0% { transform: translate(0, 0) scale(0.9) rotate(5deg); }
+  25% { transform: translate(70px, -55px) scale(1.05) rotate(14deg); }
+  50% { transform: translate(130px, -15px) scale(0.95) rotate(-10deg); }
+  75% { transform: translate(35px, -80px) scale(1) rotate(8deg); }
+  100% { transform: translate(0, 0) scale(0.9) rotate(5deg); }
+}
+
+@keyframes flyPattern2 {
+  0% { transform: translate(0, 0) scale(1) rotate(-8deg); }
+  30% { transform: translate(-90px, -70px) scale(1.1) rotate(-18deg); }
+  60% { transform: translate(-50px, 30px) scale(0.9) rotate(10deg); }
+  85% { transform: translate(-120px, -45px) scale(1.05) rotate(-5deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(-8deg); }
+}
+
+@keyframes flyPattern3 {
+  0% { transform: translate(0, 0) scale(0.85) rotate(12deg); }
+  35% { transform: translate(-70px, -65px) scale(1.05) rotate(-12deg); }
+  65% { transform: translate(55px, -100px) scale(1) rotate(15deg); }
+  85% { transform: translate(-25px, -35px) scale(0.95) rotate(-6deg); }
+  100% { transform: translate(0, 0) scale(0.85) rotate(12deg); }
+}
+
+/* ==========================================================================
+   LOVE WHISPER BUBBLE (Lời nhắn thì thầm ngọt ngào khi chạm hoa)
+   ========================================================================== */
+.flower-whisper-bubble {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(240, 180, 195, 0.9);
+  border-radius: 9999px;
+  color: #6a2434;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(180, 50, 80, 0.22);
+  pointer-events: none;
+  z-index: 150;
+  white-space: nowrap;
+  animation: whisperFloat 2s cubic-bezier(0.18, 0.89, 0.32, 1) forwards;
+}
+
+@keyframes whisperFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.65);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -110%) scale(1.05);
+  }
+  30% {
+    transform: translate(-50%, -100%) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -125%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -160%) scale(0.9);
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE CHO MỌI MÀN HÌNH (Mobile, Tablet, Desktop, 4K, Landscape)
+   ========================================================================== */
+
+/* 1. Màn hình máy tính bảng (Tablets & iPads 481px - 1024px) */
+@media (max-width: 1024px) {
+  .hero-flower-wrapper {
+    --hero-head-size: clamp(130px, 16vw, 210px);
+    height: 72vh;
+  }
+  .hero-stem-image {
+    height: calc(72vh - var(--hero-head-size) + 15px);
+  }
+  .card-modal-container {
+    max-width: 460px;
+    padding: 34px 28px 26px;
+  }
+}
+
+/* 2. Màn hình điện thoại tiêu chuẩn (Smartphones <= 768px) */
 @media (max-width: 768px) {
   .top-header {
-    top: 20px;
-    left: 20px;
+    top: max(18px, env(safe-area-inset-top));
+    left: max(18px, env(safe-area-inset-left));
+    max-width: calc(100% - 115px);
   }
   .top-brand {
     font-size: 20px;
   }
   .top-controls {
-    top: 18px;
-    right: 18px;
+    top: max(16px, env(safe-area-inset-top));
+    right: max(16px, env(safe-area-inset-right));
   }
   .control-pill {
     padding: 6px 12px;
@@ -846,7 +1078,7 @@ html, body {
 
   .card-modal-container {
     padding: 30px 22px 24px;
-    max-height: 85vh;
+    max-height: calc(100dvh - 40px);
   }
   .card-main-title {
     font-size: 22px;
@@ -857,7 +1089,7 @@ html, body {
   }
 
   .bottom-actions {
-    bottom: 24px;
+    bottom: max(22px, env(safe-area-inset-bottom));
     gap: 12px;
   }
   .btn-garden-action {
@@ -866,9 +1098,34 @@ html, body {
   }
 }
 
-@media (max-width: 420px) {
+/* 3. Màn hình điện thoại nhỏ (Compact Phones <= 480px) */
+@media (max-width: 480px) {
+  .top-header {
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    max-width: calc(100% - 105px);
+  }
+  .top-brand {
+    font-size: 18px;
+  }
+  .top-controls {
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+  }
+  .control-pill {
+    padding: 5px 11px;
+    font-size: 12px;
+  }
+  .intro-text-container {
+    top: 13%;
+    width: 92%;
+  }
   .intro-title {
-    font-size: 22px;
+    font-size: 23px;
+    margin-bottom: 8px;
+  }
+  .intro-subtitle {
+    font-size: 13.5px;
   }
   .btn-garden-action {
     padding: 9px 15px;
@@ -876,5 +1133,155 @@ html, body {
   }
   .card-main-title {
     font-size: 20px;
+  }
+  .card-modal-container {
+    padding: 26px 18px 22px;
+    max-height: calc(100dvh - 32px);
+    border-radius: 20px;
+  }
+  .card-body-text {
+    font-size: 13.5px;
+    line-height: 1.68;
+  }
+  .bottom-actions {
+    bottom: max(18px, env(safe-area-inset-bottom));
+    gap: 10px;
+  }
+}
+
+/* 4. Màn hình điện thoại siêu nhỏ (Mini/SE Phones <= 360px) */
+@media (max-width: 360px) {
+  .top-brand {
+    font-size: 15px;
+  }
+  .control-pill {
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .intro-title {
+    font-size: 20px;
+  }
+  .intro-subtitle {
+    font-size: 12px;
+  }
+  .hero-flower-wrapper {
+    --hero-head-size: 110px;
+    height: 60vh;
+  }
+  .card-modal-container {
+    padding: 20px 14px 16px;
+    border-radius: 16px;
+  }
+  .card-main-title {
+    font-size: 18px;
+  }
+  .card-body-text {
+    font-size: 12.8px;
+    line-height: 1.58;
+  }
+  .card-paragraph {
+    margin-bottom: 8px;
+  }
+  .btn-garden-action {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .bottom-actions {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+}
+
+/* 5. Chế độ màn hình xoay ngang điện thoại (Mobile Landscape <= 520px height) */
+@media (max-height: 520px) {
+  .top-header {
+    top: max(8px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+  }
+  .top-brand {
+    font-size: 16px;
+  }
+  .top-controls {
+    top: max(8px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+  }
+  .intro-text-container {
+    top: 6%;
+  }
+  .intro-title {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .intro-subtitle {
+    font-size: 12px;
+  }
+  .intro-text-container.blooming-state {
+    bottom: 12%;
+  }
+  .hero-flower-wrapper {
+    --hero-head-size: clamp(75px, 20vh, 105px);
+    height: 72vh;
+  }
+  .card-modal-backdrop {
+    padding: 8px;
+    align-items: flex-start;
+  }
+  .card-modal-container {
+    max-height: 94vh;
+    padding: 16px 20px 14px;
+    margin: auto;
+  }
+  .card-rose-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+  }
+  .card-main-title {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .card-body-text {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .card-paragraph {
+    margin-bottom: 8px;
+  }
+  .bottom-actions {
+    bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+  .btn-garden-action {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+}
+
+/* 6. Màn hình lớn máy tính bàn & 4K (Large & Ultrawide Displays >= 1600px) */
+@media (min-width: 1600px) {
+  .top-brand {
+    font-size: 30px;
+  }
+  .intro-title {
+    font-size: 40px;
+  }
+  .intro-subtitle {
+    font-size: 18px;
+  }
+  .hero-flower-wrapper {
+    --hero-head-size: clamp(200px, 16vw, 290px);
+    height: 80vh;
+  }
+  .card-modal-container {
+    max-width: 480px;
+    padding: 44px 38px 34px;
+  }
+  .card-main-title {
+    font-size: 26px;
+  }
+  .card-body-text {
+    font-size: 16px;
+    line-height: 1.85;
   }
 }

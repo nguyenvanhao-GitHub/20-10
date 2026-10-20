@@ -156,19 +156,27 @@ function buildGarden() {
     return seed / 4294967296;
   };
 
-  const isMobile = window.innerWidth <= 768;
+  const width = window.innerWidth;
+  const isMobile = width <= 768;
   const containerHeight = container.clientHeight || window.innerHeight;
   const sizeScale = isMobile
-    ? Math.min(0.8, window.innerWidth / 520)
-    : Math.min(1.55, Math.max(0.85, window.innerWidth / 1280));
+    ? Math.min(0.85, Math.max(0.65, width / 480))
+    : Math.min(1.5, Math.max(0.85, width / 1280));
   const gardenColors = [0, 1, 2, 0, 3, 1, 2, 0, 4, 5];
   const gardenPalette = index => COLOR_PALETTES[gardenColors[index % gardenColors.length]];
 
-  // Các tầng hoa gối đầu lên nhau, tạo thành thảm hoa thay vì những cành đứng riêng lẻ.
+  // Các tầng hoa gối đầu lên nhau thích ứng theo mọi độ phân giải màn hình
   const flowerItems = [];
 
+  // Tính toán số lượng hoa co giãn linh hoạt theo chiều rộng màn hình (từ mobile 320px đến 4K)
+  const countT1 = Math.round(Math.max(14, Math.min(36, width / 44)));
+  const countT2 = Math.round(Math.max(16, Math.min(40, width / 40)));
+  const countT3 = Math.round(Math.max(16, Math.min(40, width / 40)));
+  const countT4 = Math.round(Math.max(16, Math.min(42, width / 38)));
+  const countT5 = Math.round(Math.max(8, Math.min(16, width / 95)));
+  const fillerCount = Math.round(Math.max(15, Math.min(38, width / 42)));
+
   // Lớp tiền cảnh phủ sát mép dưới (dày đặc, không lộ kẽ hở).
-  const countT1 = isMobile ? 15 : 28;
   for (let i = 0; i < countT1; i++) {
     const xPct = (i / (countT1 - 1)) * 96 + 2 + (rand() * 4 - 2);
     flowerItems.push({
@@ -184,7 +192,6 @@ function buildGarden() {
   }
 
   // Lớp hoa lớn thứ hai gối lên và lấp toàn bộ khe giữa các bông tiền cảnh.
-  const countT2 = isMobile ? 18 : 32;
   for (let i = 0; i < countT2; i++) {
     const xPct = ((i + 0.5) / countT2) * 94 + 3 + (rand() * 4 - 2);
     flowerItems.push({
@@ -201,7 +208,6 @@ function buildGarden() {
   }
 
   // Lớp giữa đan xen hoa hồng nở và xen vài nụ nhỏ.
-  const countT3 = isMobile ? 17 : 32;
   for (let i = 0; i < countT3; i++) {
     const xPct = (i / (countT3 - 1)) * 92 + 4 + (rand() * 5 - 2.5);
     const isBud = rand() < 0.13;
@@ -219,7 +225,6 @@ function buildGarden() {
   }
 
   // Lớp sau tạo mép trên nhấp nhô của thảm hoa.
-  const countT4 = isMobile ? 17 : 32;
   for (let i = 0; i < countT4; i++) {
     const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
     const r = rand();
@@ -240,7 +245,6 @@ function buildGarden() {
   }
 
   // Một ít hoa và nụ vươn cao hai bên, như phần nền xa trong ảnh mẫu.
-  const countT5 = isMobile ? 8 : 14;
   for (let i = 0; i < countT5; i++) {
     const xPct = (i / (countT5 - 1)) * 94 + 3 + (rand() * 3 - 1.5);
     if (Math.abs(xPct - 50) < 8) continue;
@@ -260,7 +264,6 @@ function buildGarden() {
   }
 
   // Hai dải hoa không lộ thân lấp kín những khoảng trời giữa các tầng.
-  const fillerCount = isMobile ? 16 : 30;
   for (let row = 0; row < 2; row++) {
     for (let i = 0; i < fillerCount; i++) {
       const xPct = ((i + (row ? 0.68 : 0.18)) / fillerCount) * 98 + 1 + (rand() * 3 - 1.5);
@@ -348,13 +351,20 @@ function buildGarden() {
 
     flowerEl.appendChild(headWrap);
 
+    // Hiệu ứng tương tác chạm vào từng đóa hoa (Âm thanh + Bụi tiên + Lời chúc ngọt ngào)
     flowerEl.addEventListener('click', (e) => {
       e.stopPropagation();
       playChimeNote(440 + Math.random() * 400);
-      flowerEl.style.transform = 'scale(1.1) translateY(-6px)';
+      flowerEl.style.transform = 'scale(1.12) translateY(-8px)';
       setTimeout(() => {
         flowerEl.style.transform = '';
       }, 300);
+
+      const rect = headWrap.getBoundingClientRect();
+      const clickX = e.clientX || (rect.left + rect.width / 2);
+      const clickY = e.clientY || (rect.top + rect.height / 3);
+      spawnBurstParticles(clickX, clickY, 8);
+      showFlowerLoveWhisper(clickX, clickY - 12);
     });
 
     fragment.appendChild(flowerEl);
@@ -377,6 +387,14 @@ function triggerGardenBloom() {
   startAudioEngine();
   playBloomArpeggio();
   startPetalRain();
+
+  // Đàn bướm thức giấc bay lượn
+  const butterflies = document.getElementById('butterflies-container');
+  if (butterflies) {
+    setTimeout(() => {
+      butterflies.classList.add('active');
+    }, 450);
+  }
 
   const heroWrapper = document.getElementById('hero-flower');
   const heroIndicator = document.getElementById('hero-click-indicator');
@@ -429,6 +447,12 @@ function resetGardenBloom() {
 
   closeCardModal();
 
+  // Đàn bướm thu cánh nghỉ ngơi
+  const butterflies = document.getElementById('butterflies-container');
+  if (butterflies) {
+    butterflies.classList.remove('active');
+  }
+
   const bottomActions = document.getElementById('bottom-actions');
   if (bottomActions) {
     bottomActions.classList.remove('visible');
@@ -461,6 +485,10 @@ function openCardModal() {
   if (modal) {
     playChimeNote(587.33);
     modal.classList.add('open');
+    // Bắn chùm pháo hoa cánh hoa & bụi tiên rực rỡ chào đón bức thiệp
+    if (canvas) {
+      spawnBurstParticles(window.innerWidth / 2, window.innerHeight * 0.36, 18);
+    }
   }
 }
 
@@ -634,21 +662,137 @@ function updateMusicBtnUI(playing) {
   }
 }
 
-// Canvas FX
+// =============================================================================
+// 9. HIỆU ỨNG TƯƠNG TÁC ĐẶC BIỆT (CANVAS FX, ĐOM ĐÓM, VỆT SAO & LỜI YÊU THƯƠNG)
+// =============================================================================
 let canvas, ctx;
 let particles = [];
 let isRainingPetals = false;
+let lastTrailTime = 0;
+let lastWhisperTime = 0;
+
+const LOVE_WHISPERS = [
+  'Bạn là đóa hoa rạng rỡ nhất 🌸',
+  'Luôn mỉm cười và hạnh phúc nhé ✨',
+  'Nụ cười của bạn làm dịu dàng cả thế giới 🌷',
+  'Mong bạn luôn được trân trọng và yêu thương 💖',
+  'Tự tin tỏa sáng theo cách của riêng mình 💫',
+  'Chúc bạn 20/10 ngập tràn niềm vui 💐',
+  'Bình yên trong tim, rạng ngời ánh mắt 🕊️',
+  'Hôm nay bạn trông thật tuyệt vời 💕',
+  'Cả một vườn thương dành tặng riêng bạn ♡',
+  'Mỗi ngày đều là ngày đẹp nhất của bạn 🌟'
+];
+
+function showFlowerLoveWhisper(x, y) {
+  const now = performance.now();
+  if (now - lastWhisperTime < 280) return;
+  lastWhisperTime = now;
+
+  const text = LOVE_WHISPERS[Math.floor(Math.random() * LOVE_WHISPERS.length)];
+  const bubble = document.createElement('div');
+  bubble.className = 'flower-whisper-bubble';
+  bubble.textContent = text;
+  
+  // Giữ bong bóng nằm gọn trong khung hình không tràn viền
+  const safeX = Math.max(120, Math.min(window.innerWidth - 120, x));
+  const safeY = Math.max(30, y);
+  bubble.style.left = `${safeX}px`;
+  bubble.style.top = `${safeY}px`;
+  document.body.appendChild(bubble);
+
+  setTimeout(() => {
+    bubble.remove();
+  }, 2000);
+}
+
+function spawnBurstParticles(x, y, count = 10) {
+  if (!ctx || !canvas) return;
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 3.5 + 1.2;
+    const isSparkle = Math.random() < 0.65;
+    particles.push({
+      isSparkle,
+      isBurst: true,
+      x: x,
+      y: y,
+      size: isSparkle ? (Math.random() * 3.5 + 2) : (Math.random() * 7 + 4),
+      speedX: Math.cos(angle) * speed,
+      speedY: Math.sin(angle) * speed - 1.2,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 6,
+      color: ['#fff176', '#ff80ab', '#ff4081', '#ffd54f', '#80deea', '#ffffff'][Math.floor(Math.random() * 6)],
+      opacity: 1,
+      life: 1.0,
+      decay: 0.02 + Math.random() * 0.02
+    });
+  }
+}
+
+function spawnTouchSparkle(x, y) {
+  const now = performance.now();
+  if (now - lastTrailTime < 28) return;
+  lastTrailTime = now;
+  for (let i = 0; i < 2; i++) {
+    particles.push({
+      isSparkle: true,
+      isBurst: true,
+      x: x + (Math.random() - 0.5) * 16,
+      y: y + (Math.random() - 0.5) * 16,
+      size: Math.random() * 2.8 + 1.6,
+      speedX: (Math.random() - 0.5) * 0.8,
+      speedY: -Math.random() * 1.2 - 0.3,
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 3,
+      color: ['#fff9c4', '#ffcdd2', '#ffe0b2', '#e1f5fe'][Math.floor(Math.random() * 4)],
+      opacity: 1,
+      life: 1.0,
+      decay: 0.035
+    });
+  }
+}
 
 function initCanvasFX() {
   canvas = document.getElementById('fx-canvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
+  
   function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resize();
   window.addEventListener('resize', resize);
+
+  // Thêm 12 đom đóm phát sáng lơ lửng huyền ảo trong vườn
+  for (let i = 0; i < 12; i++) {
+    particles.push({
+      isFirefly: true,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.65 + canvas.height * 0.3,
+      size: Math.random() * 2.4 + 1.8,
+      baseX: Math.random() * canvas.width,
+      angle: Math.random() * Math.PI * 2,
+      speedY: -Math.random() * 0.35 - 0.1,
+      pulseSpeed: Math.random() * 0.035 + 0.015,
+      pulse: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Tương tác vệt sao lấp lánh khi di chuột hoặc lướt ngón tay trên màn hình
+  window.addEventListener('pointermove', (e) => {
+    if (isBlooming || hasBloomed) {
+      spawnTouchSparkle(e.clientX, e.clientY);
+    }
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if ((isBlooming || hasBloomed) && e.touches[0]) {
+      spawnTouchSparkle(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+
   requestAnimationFrame(loopFX);
 }
 
@@ -680,17 +824,57 @@ function createParticle(randomY = false) {
 function loopFX() {
   if (ctx && canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (isRainingPetals && particles.length < 50 && Math.random() < 0.15) {
+
+    if (isRainingPetals && particles.length < 65 && Math.random() < 0.15) {
       particles.push(createParticle(false));
     }
+
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
+
+      // 1. Xử lý đom đóm lập lòe
+      if (p.isFirefly) {
+        p.y += p.speedY;
+        p.angle += 0.015;
+        p.x = p.baseX + Math.sin(p.angle) * 18;
+        p.pulse += p.pulseSpeed;
+        const alpha = Math.sin(p.pulse) * 0.3 + 0.6;
+        const rad = p.size * 3.4;
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
+        grad.addColorStop(0, `rgba(255, 240, 150, ${alpha})`);
+        grad.addColorStop(0.35, `rgba(255, 215, 64, ${alpha * 0.5})`);
+        grad.addColorStop(1, 'rgba(255, 215, 64, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.y < 40) {
+          p.y = canvas.height + 15;
+          p.baseX = Math.random() * canvas.width;
+        }
+        continue;
+      }
+
+      // 2. Xử lý vệt sao & hạt bùng nổ khi chạm hoa/mở thiệp
+      if (p.isBurst) {
+        p.life -= p.decay || 0.025;
+        p.opacity = Math.max(0, p.life);
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+      }
+
       p.x += p.speedX;
       p.y += p.speedY;
       p.rotation += p.rotSpeed;
+
       ctx.save();
+      ctx.globalAlpha = p.opacity || 1;
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rotation * Math.PI) / 180);
+
       if (p.isSparkle) {
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -706,12 +890,38 @@ function loopFX() {
         ctx.fill();
       }
       ctx.restore();
-      if (p.y > canvas.height + 25 || p.x > canvas.width + 25) {
-        particles.splice(i, 1);
+
+      if (p.y > canvas.height + 25 || p.x > canvas.width + 25 || p.x < -25) {
+        if (!p.isBurst) {
+          particles.splice(i, 1);
+        }
       }
     }
   }
   requestAnimationFrame(loopFX);
+}
+
+// Cài đặt tương tác cho đàn bướm trong vườn
+function setupButterflies() {
+  const container = document.getElementById('butterflies-container');
+  if (!container) return;
+  const butterflies = container.querySelectorAll('.butterfly');
+  const butterflyNotes = [783.99, 880, 987.77];
+  butterflies.forEach((b, idx) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playChimeNote(butterflyNotes[idx % butterflyNotes.length], 0, 1.4);
+      const rect = b.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      spawnBurstParticles(x, y, 10);
+      showFlowerLoveWhisper(x, y - 10);
+      b.style.transform = 'scale(1.4) rotate(360deg)';
+      setTimeout(() => {
+        b.style.transform = '';
+      }, 600);
+    });
+  });
 }
 
 // =============================================================================
@@ -739,13 +949,16 @@ window.addEventListener('DOMContentLoaded', () => {
   // 3. Chuẩn bị vườn hoa
   buildGarden();
 
-  // 4. Khởi tạo canvas hiệu ứng
+  // 4. Khởi tạo canvas hiệu ứng (cánh hoa, bụi tiên, đom đóm, vệt sao chạm)
   initCanvasFX();
 
-  // 5. Kiểm tra thông tin tùy chỉnh URL
+  // 5. Cài đặt đàn bướm bay lượn
+  setupButterflies();
+
+  // 6. Kiểm tra thông tin tùy chỉnh URL
   setupPersonalizedGreeting();
 
-  // 6. Gán các sự kiện tương tác
+  // 7. Gán các sự kiện tương tác
   const heroFlower = document.getElementById('hero-flower');
   if (heroFlower) {
     heroFlower.addEventListener('click', triggerGardenBloom);
@@ -795,9 +1008,17 @@ window.addEventListener('DOMContentLoaded', () => {
     btnCustomLink.addEventListener('click', createPersonalizedLink);
   }
 
+  // Thích ứng mượt mà khi người dùng xoay ngang màn hình hoặc đổi cỡ cửa sổ
+  let resizeTimer;
   window.addEventListener('resize', () => {
-    if (!hasBloomed && !isBlooming) {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
       buildGarden();
-    }
+      if (hasBloomed) {
+        gardenFlowersData.forEach(item => {
+          item.element.classList.add('bloomed');
+        });
+      }
+    }, 150);
   });
 });
