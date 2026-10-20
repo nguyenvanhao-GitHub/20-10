@@ -95,29 +95,17 @@ function createRoseImageHTML(palette) {
   return `<img class="rose-bloom-image" src="${ROSE_IMAGE_SRC}" alt="" draggable="false" style="filter: ${colorFilter}">`;
 }
 // =============================================================================
-// 3. NỤ HOA (ROSEBUD - KHỚP CÁC NỤ XANH LAM, CAM TRÊN ẢNH 2)
+// 3. NỤ HOA CẮT NỀN THEO ẢNH MẪU
 // =============================================================================
-function createOrganicRoseBudSVG(palette, uniqueId, size = 100) {
-  const { baseDark, lineColor, sepalColor } = palette;
-  return `
-  <svg viewBox="0 0 100 130" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <!-- Nụ hoa giọt nước mượt mà -->
-    <path d="M 50 25 C 65 48, 68 76, 50 90 C 32 76, 35 48, 50 25 Z" 
-          fill="${baseDark}" stroke="${lineColor}" stroke-width="1.0"/>
-    <!-- Vệt sáng uốn lượn trên thân nụ -->
-    <path d="M 44 32 C 54 48, 55 68, 48 82" 
-          fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.75"/>
-    <!-- Hai lá đài xanh rêu ôm lấy hai bên nụ -->
-    <path d="M 50 94 C 36 88, 26 72, 30 46 C 36 68, 43 82, 50 94 Z" 
-          fill="${sepalColor}" stroke="#1b5e20" stroke-width="1.0"/>
-    <path d="M 33 80 Q 28 66 30 52" fill="none" stroke="#a5d6a7" stroke-width="1.4" stroke-linecap="round"/>
-    
-    <path d="M 50 94 C 64 88, 74 72, 70 46 C 64 68, 57 82, 50 94 Z" 
-          fill="${sepalColor}" stroke="#1b5e20" stroke-width="1.0"/>
-    <path d="M 67 80 Q 72 66 70 52" fill="none" stroke="#a5d6a7" stroke-width="1.4" stroke-linecap="round"/>
-  </svg>`;
-}
+const BUD_IMAGE_SRCS = {
+  blue: 'assets/rosebud-blue.png?v=5',
+  peach: 'assets/rosebud-peach.png?v=5'
+};
 
+function createBudImageHTML(palette, index) {
+  const variant = palette.type === 'blue' ? 'blue' : palette.type === 'peach' ? 'peach' : index % 2 ? 'blue' : 'peach';
+  return `<img class="rosebud-image" src="${BUD_IMAGE_SRCS[variant]}" alt="" draggable="false">`;
+}
 // =============================================================================
 // 4. HOA CÚC XOẮN TRÒN (BUTTON FLOWER - TRÊN CÀNH CAO TẦNG BẦU TRỜI ẢNH 2)
 // =============================================================================
@@ -316,6 +304,26 @@ function buildGarden() {
     });
   }
 
+  // Hai dải hoa không lộ thân lấp kín những khoảng trời giữa các tầng.
+  const fillerCount = isMobile ? 15 : 28;
+  for (let row = 0; row < 2; row++) {
+    for (let i = 0; i < fillerCount; i++) {
+      const xPct = ((i + (row ? 0.68 : 0.18)) / fillerCount) * 98 + 1 + (rand() * 3 - 1.5);
+      const heightRatio = row === 0 ? 0.23 + rand() * 0.2 : 0.42 + rand() * 0.19;
+      const baseSize = row === 0 ? 112 : 92;
+      flowerItems.push({
+        xPct: Math.max(1, Math.min(99, xPct)),
+        sizePx: Math.floor((baseSize + rand() * 42) * sizeScale),
+        heightPx: Math.floor(containerHeight * heightRatio),
+        type: 'rose',
+        layer: row === 0 ? 19 : 13,
+        palette: gardenPalette(i + row * 3),
+        bend: 0,
+        hasStem: false
+      });
+    }
+  }
+
   // Tạo phần tử DOM cho toàn bộ khu vườn
   flowerItems.forEach((item, idx) => {
     const distFromCenter = Math.abs(item.xPct - 50) / 50;
@@ -335,14 +343,16 @@ function buildGarden() {
     // Bông hoa
     const headWrap = document.createElement('div');
     headWrap.className = 'flower-head-wrap';
+    const headHeight = item.type === 'bud' ? item.sizePx * 1.55 : item.sizePx;
     headWrap.style.width = `${item.sizePx}px`;
-    headWrap.style.height = `${item.sizePx}px`;
-    headWrap.style.bottom = `${item.heightPx - item.sizePx / 2}px`;
+    headWrap.style.height = `${headHeight}px`;
+    headWrap.style.bottom = `${item.heightPx - headHeight / 2}px`;
 
     if (item.type === 'button') {
       headWrap.innerHTML = createOrganicButtonSVG(item.palette, `g-${idx}`, item.sizePx);
     } else if (item.type === 'bud') {
-      headWrap.innerHTML = createOrganicRoseBudSVG(item.palette, `g-${idx}`, item.sizePx);
+      headWrap.classList.add('bud-head');
+      headWrap.innerHTML = createBudImageHTML(item.palette, idx);
     } else {
       headWrap.innerHTML = createRoseImageHTML(item.palette);
     }

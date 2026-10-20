@@ -449,6 +449,21 @@ html, body {
   transform-origin: center center;
 }
 
+.bud-head {
+  overflow: hidden;
+}
+
+.rosebud-image {
+  position: absolute;
+  width: 240%;
+  height: auto;
+  max-width: none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 /* Hiệu ứng nở rộ (Bloom animation) */
 .garden-flower.bloomed {
   opacity: 1;
