@@ -10,61 +10,61 @@ const COLOR_PALETTES = [
   {
     type: 'pink',
     name: 'Hồng phấn',
-    baseLight: '#fce4ec',
-    baseMid: '#f48fb1',
-    baseDark: '#ec407a',
-    coreColor: '#c2185b',
-    lineColor: '#880e4f',
+    baseLight: '#f8cbd5',
+    baseMid: '#eda5b7',
+    baseDark: '#d97b98',
+    coreColor: '#bb6482',
+    lineColor: '#a76079',
     sepalColor: '#2e7d32'
   },
   {
     type: 'peach',
     name: 'Cam đào / Apricot',
-    baseLight: '#ffe0b2',
-    baseMid: '#ffb74d',
-    baseDark: '#fb8c00',
-    coreColor: '#e65100',
-    lineColor: '#bf360c',
+    baseLight: '#f9dfca',
+    baseMid: '#efbda0',
+    baseDark: '#dc957f',
+    coreColor: '#bc786c',
+    lineColor: '#b37d71',
     sepalColor: '#2e7d32'
   },
   {
     type: 'mint',
     name: 'Xanh bơ / Mint',
-    baseLight: '#e8f5e9',
-    baseMid: '#a5d6a7',
-    baseDark: '#66bb6a',
-    coreColor: '#388e3c',
-    lineColor: '#1b5e20',
+    baseLight: '#e0efd2',
+    baseMid: '#bddca9',
+    baseDark: '#90be83',
+    coreColor: '#75a673',
+    lineColor: '#77966f',
     sepalColor: '#2e7d32'
   },
   {
     type: 'blue',
     name: 'Lam ngọc / Sky Blue',
-    baseLight: '#e1f5fe',
-    baseMid: '#81d4fa',
-    baseDark: '#29b6f6',
-    coreColor: '#0288d1',
-    lineColor: '#01579b',
+    baseLight: '#e1f1f7',
+    baseMid: '#b4ddf0',
+    baseDark: '#7fbee0',
+    coreColor: '#579ac4',
+    lineColor: '#6293b1',
     sepalColor: '#2e7d32'
   },
   {
     type: 'cream',
     name: 'Vàng kem bơ',
-    baseLight: '#fffde7',
-    baseMid: '#fff59d',
-    baseDark: '#ffee58',
-    coreColor: '#fbc02d',
-    lineColor: '#f57f17',
+    baseLight: '#fff5df',
+    baseMid: '#f4e4b9',
+    baseDark: '#e7cd9b',
+    coreColor: '#c9aa79',
+    lineColor: '#b9a17f',
     sepalColor: '#2e7d32'
   },
   {
     type: 'lavender',
     name: 'Tím oải hương',
-    baseLight: '#f3e5f5',
-    baseMid: '#ce93d8',
-    baseDark: '#ab47bc',
-    coreColor: '#7b1fa2',
-    lineColor: '#4a148c',
+    baseLight: '#f2e4f0',
+    baseMid: '#dec6df',
+    baseDark: '#bf9dc6',
+    coreColor: '#a583ad',
+    lineColor: '#9a789e',
     sepalColor: '#2e7d32'
   }
 ];
@@ -81,106 +81,67 @@ function polarToCart(cx, cy, r, angleDeg) {
 // 2. TẠO HÌNH HOA HỒNG TỰ NHIÊN (ORGANIC CABBAGE ROSE - KHÔNG CÓ NAN HOA/SPOKES)
 // =============================================================================
 
-function createNaturalPetal(cx, cy, rInner, rOuter, startAngle, endAngle) {
-  const span = endAngle - startAngle;
-  const midAngle = startAngle + span / 2;
-
-  const pIn1 = polarToCart(cx, cy, rInner, startAngle);
-  const pIn2 = polarToCart(cx, cy, rInner, endAngle);
-
-  // Mép cánh uốn lượn tự nhiên có vết lượn sóng nhẹ ở đỉnh cánh
-  const pL = polarToCart(cx, cy, rOuter * 0.94, startAngle + span * 0.18);
-  const pTipL = polarToCart(cx, cy, rOuter, midAngle - span * 0.12);
-  const pTipR = polarToCart(cx, cy, rOuter, midAngle + span * 0.12);
-  const pIndent = polarToCart(cx, cy, rOuter * 0.96, midAngle);
-  const pR = polarToCart(cx, cy, rOuter * 0.94, endAngle - span * 0.18);
-
-  // Đường viền thân cánh khép kín để đổ màu nền
-  const fillPath = `M ${pIn1.x.toFixed(1)} ${pIn1.y.toFixed(1)}
-                    Q ${pL.x.toFixed(1)} ${pL.y.toFixed(1)} ${pTipL.x.toFixed(1)} ${pTipL.y.toFixed(1)}
-                    Q ${pIndent.x.toFixed(1)} ${pIndent.y.toFixed(1)} ${pTipR.x.toFixed(1)} ${pTipR.y.toFixed(1)}
-                    Q ${pR.x.toFixed(1)} ${pR.y.toFixed(1)} ${pIn2.x.toFixed(1)} ${pIn2.y.toFixed(1)}
-                    Z`;
-
-  // CHỈ VIỀN NÉT Ở ĐỈNH VÒM CÁNH HOA (TUYỆT ĐỐI KHÔNG VIỀN ĐƯỜNG NAN XUYÊN VÀO TÂM)
-  const rimPath = `M ${pL.x.toFixed(1)} ${pL.y.toFixed(1)}
-                   Q ${pL.x.toFixed(1)} ${pL.y.toFixed(1)} ${pTipL.x.toFixed(1)} ${pTipL.y.toFixed(1)}
-                   Q ${pIndent.x.toFixed(1)} ${pIndent.y.toFixed(1)} ${pTipR.x.toFixed(1)} ${pTipR.y.toFixed(1)}
-                   Q ${pR.x.toFixed(1)} ${pR.y.toFixed(1)} ${pR.x.toFixed(1)} ${pR.y.toFixed(1)}`;
-
-  return { fillPath, rimPath };
+// Mỗi vòng là những mép cánh uốn cong liền nhau, không tạo các nan hoa hình quạt.
+function roseRingPath(radius, petals, rotation) {
+  let path = '';
+  const step = 360 / petals;
+  for (let i = 0; i < petals; i++) {
+    const a = rotation + i * step;
+    const start = polarToCart(80, 80, radius * 0.91, a);
+    const shoulder = polarToCart(80, 80, radius * 1.025, a + step * 0.21);
+    const crown = polarToCart(80, 80, radius * 1.055, a + step * 0.53);
+    const end = polarToCart(80, 80, radius * 0.91, a + step);
+    if (i === 0) path += `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} `;
+    path += `C ${shoulder.x.toFixed(1)} ${shoulder.y.toFixed(1)} ${crown.x.toFixed(1)} ${crown.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)} `;
+  }
+  return `${path}Z`;
 }
 
-// Bông hoa hồng lớn tự nhiên (Hero Rose & Large Garden Roses)
-function createOrganicRoseSVG(palette, uniqueId = 'rose', size = 160) {
-  const cx = 80, cy = 80;
-  const shadowId = `sh-${uniqueId}`;
+function roseRimPath(radius, petals, rotation, index) {
+  const step = 360 / petals;
+  const a = rotation + index * step;
+  const start = polarToCart(80, 80, radius * 0.91, a);
+  const shoulder = polarToCart(80, 80, radius * 1.025, a + step * 0.21);
+  const crown = polarToCart(80, 80, radius * 1.055, a + step * 0.53);
+  const end = polarToCart(80, 80, radius * 0.91, a + step);
+  return `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} C ${shoulder.x.toFixed(1)} ${shoulder.y.toFixed(1)} ${crown.x.toFixed(1)} ${crown.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+}
 
-  const {
-    baseLight,
-    baseMid,
-    baseDark,
-    coreColor,
-    lineColor,
-    sepalColor
-  } = palette;
-
-  let out = `
-  <svg viewBox="0 0 160 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+// Các lớp cánh chồng lên nhau như hoa giấy trong ảnh mẫu.
+function createOrganicRoseSVG(palette, uniqueId = 'rose') {
+  const { baseLight, baseMid, baseDark, coreColor, lineColor } = palette;
+  const gradientId = `petal-${uniqueId}`;
+  const shadowId = `shadow-${uniqueId}`;
+  let out = `<svg viewBox="0 0 160 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
-      <filter id="${shadowId}" x="-20%" y="-20%" width="145%" height="145%">
-        <feDropShadow dx="0" dy="1.4" stdDeviation="1.2" flood-color="rgba(70, 20, 30, 0.18)"/>
-      </filter>
-    </defs>
-  `;
+      <radialGradient id="${gradientId}"><stop offset="0%" stop-color="${baseDark}"/><stop offset="66%" stop-color="${baseMid}"/><stop offset="100%" stop-color="${baseLight}"/></radialGradient>
+      <filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#744153" flood-opacity=".23"/></filter>
+    </defs>`;
 
-  // 1. Gai đài hoa nhỏ màu xanh rêu sau lưng hoa
-  const sepalAngles = [30, 105, 190, 280, 340];
-  sepalAngles.forEach(ang => {
-    const p1 = polarToCart(cx, cy, 62, ang - 4.5);
-    const p2 = polarToCart(cx, cy, 72, ang);
-    const p3 = polarToCart(cx, cy, 62, ang + 4.5);
-    out += `<polygon points="${p1.x.toFixed(1)},${p1.y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} ${p3.x.toFixed(1)},${p3.y.toFixed(1)}" fill="${sepalColor}" stroke="#1b5e20" stroke-width="0.7"/>`;
-  });
-
-  // 5 tầng cánh xếp so le từ ngoài vào trong, chỉ viền mép vòm (Không có đường nan xuyên tâm)
-  const layers = [
-    { count: 7, rIn: 34, rOut: 66, rot: 15, span: 75, fill: baseLight },
-    { count: 6, rIn: 26, rOut: 54, rot: 45, span: 85, fill: baseMid },
-    { count: 5, rIn: 18, rOut: 43, rot: 22, span: 95, fill: baseMid },
-    { count: 5, rIn: 12, rOut: 32, rot: 58, span: 100, fill: baseDark },
-    { count: 4, rIn: 7,  rOut: 22, rot: 28, span: 110, fill: baseDark }
+  const rings = [
+    { radius: 65, petals: 9, rotation: -7, opacity: 1 },
+    { radius: 57, petals: 8, rotation: 14, opacity: .94 },
+    { radius: 48, petals: 8, rotation: -2, opacity: .9 },
+    { radius: 40, petals: 7, rotation: 20, opacity: .87 },
+    { radius: 32, petals: 6, rotation: 0, opacity: .85 },
+    { radius: 24, petals: 5, rotation: 18, opacity: .82 },
+    { radius: 17, petals: 5, rotation: -9, opacity: .8 }
   ];
 
-  layers.forEach((layer) => {
-    out += `<g filter="url(#${shadowId})">`;
-    for (let i = 0; i < layer.count; i++) {
-      const ang = i * (360 / layer.count) + layer.rot;
-      const { fillPath, rimPath } = createNaturalPetal(
-        cx, cy, layer.rIn, layer.rOut, 
-        ang - layer.span / 2, ang + layer.span / 2
-      );
-      // Đổ màu cánh hoa
-      out += `<path d="${fillPath}" fill="${layer.fill}"/>`;
-      // Viền nét mảnh ở mép cánh
-      out += `<path d="${rimPath}" fill="none" stroke="${lineColor}" stroke-width="0.85" stroke-linecap="round"/>`;
-      // Vệt sáng mềm nhẹ trên đỉnh cánh
-      out += `<path d="${rimPath}" fill="none" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>`;
+  rings.forEach((ring, layer) => {
+    const fill = layer === 0 ? baseLight : `url(#${gradientId})`;
+    out += `<path d="${roseRingPath(ring.radius, ring.petals, ring.rotation)}" fill="${fill}" fill-opacity="${ring.opacity}" stroke="${lineColor}" stroke-opacity=".36" stroke-width=".8" ${layer === 0 ? `filter="url(#${shadowId})"` : ''}/>`;
+    for (let i = 0; i < ring.petals; i++) {
+      const rim = roseRimPath(ring.radius, ring.petals, ring.rotation, i);
+      out += `<path d="${rim}" fill="none" stroke="${lineColor}" stroke-opacity=".48" stroke-width="1.35" stroke-linecap="round"/>`;
+      out += `<path d="${rim}" fill="none" stroke="#fffaf8" stroke-opacity=".9" stroke-width="1.35" stroke-linecap="round" transform="translate(0,-1.1)"/>`;
     }
-    out += `</g>`;
   });
 
-  // Tâm nụ hoa hồng cuộn xoắn ốc mềm mại
-  out += `<g filter="url(#${shadowId})">`;
-  out += `<circle cx="${cx}" cy="${cy}" r="11" fill="${coreColor}"/>`;
-  out += `
-    <path d="M ${cx - 5} ${cy + 2} C ${cx - 8} ${cy - 4}, ${cx + 2} ${cy - 7}, ${cx + 5} ${cy - 2} C ${cx + 7} ${cy + 3}, ${cx + 1} ${cy + 6}, ${cx - 2} ${cy + 4}" fill="${baseMid}" stroke="${lineColor}" stroke-width="0.75"/>
-    <path d="M ${cx + 2} ${cy - 3} C ${cx + 4} ${cy + 1}, ${cx} ${cy + 4}, ${cx - 2} ${cy + 1} C ${cx - 3} ${cy - 1}, ${cx} ${cy - 3}, ${cx + 2} ${cy - 2}" fill="${coreColor}" stroke="${lineColor}" stroke-width="0.75"/>
-    <circle cx="${cx}" cy="${cy}" r="2" fill="#ffffff" opacity="0.85"/>
-  `;
-  out += `</g>`;
-
-  out += `</svg>`;
+  out += `<circle cx="80" cy="80" r="11" fill="${coreColor}" fill-opacity=".58" stroke="${baseLight}" stroke-width="1.4"/>
+    <path d="M 74 79 C 72 71 85 68 88 77 C 91 86 80 91 75 85 C 71 80 77 75 82 78 C 86 81 81 85 78 82" fill="none" stroke="${baseLight}" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 74 79 C 72 71 85 68 88 77 C 91 86 80 91 75 85 C 71 80 77 75 82 78 C 86 81 81 85 78 82" fill="none" stroke="${lineColor}" stroke-opacity=".45" stroke-width=".7" stroke-linecap="round"/>
+  </svg>`;
   return out;
 }
 
@@ -234,33 +195,17 @@ function createOrganicButtonSVG(palette, uniqueId, size = 90) {
 function createHeroStemSVG(heightPx) {
   const widthPx = 160;
   const cx = widthPx / 2;
-  const topY = 5;
-  const botY = heightPx;
-
   return `
   <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
-    <!-- Cành hoa thẳng đứng thanh mảnh màu xanh lá -->
-    <line x1="${cx}" y1="${topY}" x2="${cx}" y2="${botY}" stroke="#38761d" stroke-width="3" stroke-linecap="round"/>
-
-    <!-- 1. Lá trên bên trái (ngay sát dưới đáy hoa, chúc xuống góc trái - Khớp Ảnh 1 & 2) -->
-    <g transform="translate(${cx}, ${topY + 16}) rotate(-132)">
-      <path d="M 0 0 Q -8 -4 -16 -6" fill="none" stroke="#275014" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M -14 -5 C -24 -18, -44 -14, -50 -4 C -42 8, -24 6, -14 -5 Z"
-            fill="#2e631e" stroke="#1b3d11" stroke-width="1.1"/>
-      <path d="M -15 -5 Q -32 -6 -48 -4" fill="none" stroke="#84cc16" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M -24 -5 Q -28 -10 -36 -12" fill="none" stroke="#84cc16" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-      <path d="M -24 -5 Q -28 -1 -34 3" fill="none" stroke="#84cc16" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-    </g>
-
-    <!-- 2. Lá giữa bên phải (khoảng 38% chiều cao thân cành) -->
-    <g transform="translate(${cx}, ${topY + heightPx * 0.38}) rotate(-38)">
-      <path d="M 0 0 Q 8 -4 16 -6" fill="none" stroke="#275014" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M 14 -5 C 24 -18, 44 -14, 50 -4 C 42 8, 24 6, 14 -5 Z"
-            fill="#2e631e" stroke="#1b3d11" stroke-width="1.1"/>
-      <path d="M 15 -5 Q 32 -6 48 -4" fill="none" stroke="#84cc16" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M 24 -5 Q 28 -10 36 -12" fill="none" stroke="#84cc16" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-      <path d="M 24 -5 Q 28 -1 34 3" fill="none" stroke="#84cc16" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-    </g>
+    <path d="M ${cx} 3 Q ${cx - 2} ${heightPx * .43} ${cx} ${heightPx}" fill="none" stroke="#235c35" stroke-width="2.3" stroke-linecap="round"/>
+    <!-- Lá trên nằm bên trái, hướng xuống như ảnh mẫu. -->
+    <path d="M ${cx} 24 Q ${cx - 12} 25 ${cx - 19} 17" fill="none" stroke="#235c35" stroke-width="1.4"/>
+    <path d="M ${cx - 2} 25 C ${cx - 10} 25 ${cx - 24} 21 ${cx - 31} 10 C ${cx - 32} 22 ${cx - 26} 34 ${cx - 15} 37 C ${cx - 8} 39 ${cx - 3} 33 ${cx - 2} 25 Z" fill="#247846" stroke="#185939" stroke-width="1"/>
+    <path d="M ${cx - 3} 26 Q ${cx - 17} 29 ${cx - 29} 12" fill="none" stroke="#78ad79" stroke-width=".9"/>
+    <!-- Lá giữa hướng lên về bên phải. -->
+    <path d="M ${cx} ${heightPx * .39} Q ${cx + 11} ${heightPx * .36} ${cx + 18} ${heightPx * .32}" fill="none" stroke="#235c35" stroke-width="1.4"/>
+    <path d="M ${cx + 1} ${heightPx * .39} C ${cx + 7} ${heightPx * .27} ${cx + 23} ${heightPx * .24} ${cx + 39} ${heightPx * .25} C ${cx + 35} ${heightPx * .34} ${cx + 23} ${heightPx * .40} ${cx + 1} ${heightPx * .39} Z" fill="#21804b" stroke="#185939" stroke-width="1"/>
+    <path d="M ${cx + 2} ${heightPx * .38} Q ${cx + 21} ${heightPx * .32} ${cx + 38} ${heightPx * .26}" fill="none" stroke="#89b47e" stroke-width=".9"/>
   </svg>`;
 }
 
@@ -312,6 +257,13 @@ function buildGarden() {
   container.innerHTML = '';
   gardenFlowersData = [];
 
+  // Cố định bố cục để khu vườn giữ nguyên vị trí như một bức tranh mỗi lần mở.
+  let seed = 20261020;
+  const rand = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+
   const isMobile = window.innerWidth <= 768;
   const containerHeight = container.clientHeight || (window.innerHeight * 0.72);
 
@@ -321,15 +273,15 @@ function buildGarden() {
   // TẦNG 1: DƯỚI ĐÁY CÙNG (0% - 14% chiều cao) - 10 đóa hoa lớn xếp sát nhau gối lên nhau phủ kín đáy
   const countT1 = isMobile ? 7 : 11;
   for (let i = 0; i < countT1; i++) {
-    const xPct = (i / (countT1 - 1)) * 96 + 2 + (Math.random() * 4 - 2);
+    const xPct = (i / (countT1 - 1)) * 96 + 2 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor(115 + Math.random() * 22),
-      heightPx: Math.floor(containerHeight * (0.05 + Math.random() * 0.10)),
+      sizePx: Math.floor(115 + rand() * 22),
+      heightPx: Math.floor(containerHeight * (0.05 + rand() * 0.10)),
       type: 'rose',
       layer: 28, // Trên cùng trong khu vườn
       palette: COLOR_PALETTES[i % COLOR_PALETTES.length],
-      bend: (Math.random() - 0.5) * 15,
+      bend: (rand() - 0.5) * 15,
       hasStem: false // Đáy sát đất không lộ cành
     });
   }
@@ -337,15 +289,15 @@ function buildGarden() {
   // TẦNG 2: TẦNG TRUNG TRƯỚC (12% - 28% chiều cao) - 12 đóa hoa lấp đầy các khe hở của tầng 1
   const countT2 = isMobile ? 8 : 13;
   for (let i = 0; i < countT2; i++) {
-    const xPct = ((i + 0.5) / countT2) * 94 + 3 + (Math.random() * 4 - 2);
+    const xPct = ((i + 0.5) / countT2) * 94 + 3 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor(95 + Math.random() * 20),
-      heightPx: Math.floor(containerHeight * (0.16 + Math.random() * 0.12)),
+      sizePx: Math.floor(95 + rand() * 20),
+      heightPx: Math.floor(containerHeight * (0.16 + rand() * 0.12)),
       type: 'rose',
       layer: 22,
       palette: COLOR_PALETTES[(i + 2) % COLOR_PALETTES.length],
-      bend: (Math.random() - 0.5) * 20,
+      bend: (rand() - 0.5) * 20,
       hasStem: true
     });
   }
@@ -353,16 +305,16 @@ function buildGarden() {
   // TẦNG 3: TẦNG TRUNG SAU (26% - 42% chiều cao) - 11 đóa hoa hồng & búp nụ xen kẽ
   const countT3 = isMobile ? 7 : 12;
   for (let i = 0; i < countT3; i++) {
-    const xPct = (i / (countT3 - 1)) * 92 + 4 + (Math.random() * 5 - 2.5);
-    const isBud = Math.random() < 0.35;
+    const xPct = (i / (countT3 - 1)) * 92 + 4 + (rand() * 5 - 2.5);
+    const isBud = rand() < 0.35;
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: isBud ? 54 : Math.floor(80 + Math.random() * 18),
-      heightPx: Math.floor(containerHeight * (0.28 + Math.random() * 0.14)),
+      sizePx: isBud ? 54 : Math.floor(80 + rand() * 18),
+      heightPx: Math.floor(containerHeight * (0.28 + rand() * 0.14)),
       type: isBud ? 'bud' : 'rose',
       layer: 16,
-      palette: isBud ? (Math.random() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : COLOR_PALETTES[(i + 4) % COLOR_PALETTES.length],
-      bend: (Math.random() - 0.5) * 25,
+      palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : COLOR_PALETTES[(i + 4) % COLOR_PALETTES.length],
+      bend: (rand() - 0.5) * 25,
       hasStem: true
     });
   }
@@ -370,22 +322,22 @@ function buildGarden() {
   // TẦNG 4: TẦNG CÀNH CAO VƯƠN LÊN BẦU TRỜI (42% - 66% chiều cao) - Hoa cúc xoắn tròn & nụ hoa vươn cao như ảnh 2
   const countT4 = isMobile ? 8 : 15;
   for (let i = 0; i < countT4; i++) {
-    const xPct = (i / (countT4 - 1)) * 92 + 4 + (Math.random() * 6 - 3);
+    const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
     // Tránh vị trí giữa để không che bông hoa hồng Hero
     if (Math.abs(xPct - 50) < 9) continue;
 
-    const r = Math.random();
+    const r = rand();
     const type = r < 0.45 ? 'button' : (r < 0.75 ? 'bud' : 'rose');
     const sizePx = type === 'button' ? 44 : (type === 'bud' ? 50 : 66);
 
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: sizePx,
-      heightPx: Math.floor(containerHeight * (0.45 + Math.random() * 0.20)),
+      heightPx: Math.floor(containerHeight * (0.45 + rand() * 0.20)),
       type: type,
       layer: 11,
       palette: COLOR_PALETTES[i % COLOR_PALETTES.length],
-      bend: (Math.random() - 0.5) * 28,
+      bend: (rand() - 0.5) * 28,
       hasStem: true
     });
   }
@@ -393,10 +345,10 @@ function buildGarden() {
   // Tạo phần tử DOM cho toàn bộ khu vườn
   flowerItems.forEach((item, idx) => {
     const distFromCenter = Math.abs(item.xPct - 50) / 50;
-    const delay = (0.2 + distFromCenter * 1.3 + Math.random() * 0.7).toFixed(2);
-    const swayDuration = (3.8 + Math.random() * 2.2).toFixed(1) + 's';
-    const swayDelay = (-Math.random() * 4).toFixed(1) + 's';
-    const baseRot = ((Math.random() - 0.5) * 4).toFixed(1) + 'deg';
+    const delay = (0.2 + distFromCenter * 1.3 + rand() * 0.7).toFixed(2);
+    const swayDuration = (3.8 + rand() * 2.2).toFixed(1) + 's';
+    const swayDelay = (-rand() * 4).toFixed(1) + 's';
+    const baseRot = ((rand() - 0.5) * 4).toFixed(1) + 'deg';
 
     const flowerEl = document.createElement('div');
     flowerEl.className = 'garden-flower';
@@ -424,11 +376,11 @@ function buildGarden() {
     // Cành hoa
     if (item.hasStem) {
       const leaves = [];
-      if (Math.random() > 0.3) {
-        leaves.push({ side: 'left', pos: 0.38 + Math.random() * 0.15, angle: 32 + Math.random() * 18, scale: 0.75 + Math.random() * 0.25 });
+      if (rand() > 0.3) {
+        leaves.push({ side: 'left', pos: 0.38 + rand() * 0.15, angle: 32 + rand() * 18, scale: 0.75 + rand() * 0.25 });
       }
-      if (Math.random() > 0.35) {
-        leaves.push({ side: 'right', pos: 0.62 + Math.random() * 0.15, angle: 32 + Math.random() * 18, scale: 0.75 + Math.random() * 0.25 });
+      if (rand() > 0.35) {
+        leaves.push({ side: 'right', pos: 0.62 + rand() * 0.15, angle: 32 + rand() * 18, scale: 0.75 + rand() * 0.25 });
       }
       const stemWrap = document.createElement('div');
       stemWrap.className = 'flower-stem-wrap';

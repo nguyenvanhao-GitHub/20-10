@@ -321,7 +321,7 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   width: 170px;
-  height: 56vh;
+  height: 68vh;
   z-index: 25;
   cursor: pointer;
   display: flex;
@@ -337,6 +337,7 @@ html, body {
 
 /* Vòng xoay phát sáng mời gọi click */
 .hero-click-indicator {
+  display: none;
   position: absolute;
   top: 10px;
   left: 50%;
@@ -382,8 +383,8 @@ html, body {
 /* Cành hoa Hero */
 .hero-stem-svg {
   position: relative;
-  width: 100px;
-  height: calc(56vh - 120px);
+  width: 160px;
+  height: calc(68vh - 120px);
   margin-top: -15px;
   z-index: 5;
   overflow: visible;
@@ -783,7 +784,10 @@ html, body {
 
   .hero-flower-wrapper {
     width: 140px;
-    height: 52vh;
+    height: 63vh;
+  }
+  .hero-stem-svg {
+    height: calc(63vh - 100px);
   }
   .hero-rose-head {
     width: 115px;
