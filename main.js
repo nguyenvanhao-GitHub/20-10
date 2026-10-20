@@ -78,9 +78,9 @@ function polarToCart(cx, cy, r, angleDeg) {
 }
 
 // =============================================================================
-// 2. HOA HỒNG ẢNH CẮT NỀN, GIỮ KẾT CẤU CÁNH HOA THẬT
+// 2. HOA HỒNG ẢNH CẮT NỀN, GIỮ KẾT CẤU CÁNH HOA THẬT (TỐI ƯU HÓA HIỆU NĂNG CAO)
 // =============================================================================
-const ROSE_IMAGE_SRC = 'assets/rose-pink.png?v=4';
+const ROSE_IMAGE_SRC = 'assets/rose-pink.png?v=6';
 const ROSE_COLOR_FILTERS = {
   pink: 'saturate(.86) brightness(1.04)',
   peach: 'hue-rotate(36deg) saturate(.72) brightness(1.1)',
@@ -92,19 +92,19 @@ const ROSE_COLOR_FILTERS = {
 
 function createRoseImageHTML(palette) {
   const colorFilter = ROSE_COLOR_FILTERS[palette.type] || 'none';
-  return `<img class="rose-bloom-image" src="${ROSE_IMAGE_SRC}" alt="" draggable="false" style="filter: ${colorFilter}">`;
+  return `<img class="rose-bloom-image" src="${ROSE_IMAGE_SRC}" alt="" draggable="false" loading="eager" decoding="async" style="filter: ${colorFilter}">`;
 }
 // =============================================================================
 // 3. NỤ HOA CẮT NỀN THEO ẢNH MẪU
 // =============================================================================
 const BUD_IMAGE_SRCS = {
-  blue: 'assets/rosebud-blue.png?v=5',
-  peach: 'assets/rosebud-peach.png?v=5'
+  blue: 'assets/rosebud-blue.png?v=6',
+  peach: 'assets/rosebud-peach.png?v=6'
 };
 
 function createBudImageHTML(palette, index) {
   const variant = palette.type === 'blue' ? 'blue' : palette.type === 'peach' ? 'peach' : index % 2 ? 'blue' : 'peach';
-  return `<img class="rosebud-image" src="${BUD_IMAGE_SRCS[variant]}" alt="" draggable="false">`;
+  return `<img class="rosebud-image" src="${BUD_IMAGE_SRCS[variant]}" alt="" draggable="false" loading="eager" decoding="async">`;
 }
 // =============================================================================
 // 4. HOA CÚC XOẮN TRÒN (BUTTON FLOWER - TRÊN CÀNH CAO TẦNG BẦU TRỜI ẢNH 2)
@@ -212,14 +212,14 @@ function buildGarden() {
   // Các tầng hoa gối đầu lên nhau, tạo thành thảm hoa thay vì những cành đứng riêng lẻ.
   const flowerItems = [];
 
-  // Lớp tiền cảnh phủ sát mép dưới.
-  const countT1 = isMobile ? 13 : 25;
+  // Lớp tiền cảnh phủ sát mép dưới (dày đặc, không lộ kẽ hở).
+  const countT1 = isMobile ? 15 : 28;
   for (let i = 0; i < countT1; i++) {
     const xPct = (i / (countT1 - 1)) * 96 + 2 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((132 + rand() * 42) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.04 + rand() * 0.15)),
+      sizePx: Math.floor((134 + rand() * 44) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.03 + rand() * 0.14)),
       type: 'rose',
       layer: 28, // Trên cùng trong khu vườn
       palette: gardenPalette(i),
@@ -228,14 +228,14 @@ function buildGarden() {
     });
   }
 
-  // Lớp hoa lớn thứ hai lấp toàn bộ khe giữa các bông tiền cảnh.
-  const countT2 = isMobile ? 16 : 29;
+  // Lớp hoa lớn thứ hai gối lên và lấp toàn bộ khe giữa các bông tiền cảnh.
+  const countT2 = isMobile ? 18 : 32;
   for (let i = 0; i < countT2; i++) {
     const xPct = ((i + 0.5) / countT2) * 94 + 3 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((118 + rand() * 43) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.17 + rand() * 0.18)),
+      sizePx: Math.floor((120 + rand() * 44) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.16 + rand() * 0.18)),
       type: 'rose',
       layer: 22,
       palette: gardenPalette(i + 2),
@@ -245,15 +245,15 @@ function buildGarden() {
     });
   }
 
-  // Lớp giữa vẫn là hoa hồng nở, chỉ xen vài nụ nhỏ.
-  const countT3 = isMobile ? 15 : 29;
+  // Lớp giữa đan xen hoa hồng nở và xen vài nụ nhỏ.
+  const countT3 = isMobile ? 17 : 32;
   for (let i = 0; i < countT3; i++) {
     const xPct = (i / (countT3 - 1)) * 92 + 4 + (rand() * 5 - 2.5);
     const isBud = rand() < 0.13;
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor((isBud ? 55 : 93 + rand() * 45) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.32 + rand() * 0.2)),
+      sizePx: Math.floor((isBud ? 55 : 95 + rand() * 45) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.31 + rand() * 0.2)),
       type: isBud ? 'bud' : 'rose',
       layer: 16,
       palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : gardenPalette(i + 4),
@@ -264,17 +264,17 @@ function buildGarden() {
   }
 
   // Lớp sau tạo mép trên nhấp nhô của thảm hoa.
-  const countT4 = isMobile ? 15 : 30;
+  const countT4 = isMobile ? 17 : 32;
   for (let i = 0; i < countT4; i++) {
     const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
     const r = rand();
     const type = r < 0.14 ? 'button' : (r < 0.27 ? 'bud' : 'rose');
-    const sizePx = Math.floor((type === 'button' ? 59 : (type === 'bud' ? 56 : 76 + rand() * 33)) * sizeScale);
+    const sizePx = Math.floor((type === 'button' ? 59 : (type === 'bud' ? 56 : 78 + rand() * 34)) * sizeScale);
 
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: sizePx,
-      heightPx: Math.floor(containerHeight * (0.48 + rand() * 0.19)),
+      heightPx: Math.floor(containerHeight * (0.47 + rand() * 0.19)),
       type: type,
       layer: 11,
       palette: gardenPalette(i),
@@ -285,7 +285,7 @@ function buildGarden() {
   }
 
   // Một ít hoa và nụ vươn cao hai bên, như phần nền xa trong ảnh mẫu.
-  const countT5 = isMobile ? 6 : 10;
+  const countT5 = isMobile ? 8 : 14;
   for (let i = 0; i < countT5; i++) {
     const xPct = (i / (countT5 - 1)) * 94 + 3 + (rand() * 3 - 1.5);
     if (Math.abs(xPct - 50) < 8) continue;
@@ -294,7 +294,7 @@ function buildGarden() {
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: Math.floor((type === 'bud' ? 44 : 54 + rand() * 30) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.63 + rand() * 0.13)),
+      heightPx: Math.floor(containerHeight * (0.62 + rand() * 0.14)),
       type,
       layer: 7,
       palette: gardenPalette(i + 5),
@@ -305,12 +305,12 @@ function buildGarden() {
   }
 
   // Hai dải hoa không lộ thân lấp kín những khoảng trời giữa các tầng.
-  const fillerCount = isMobile ? 15 : 28;
+  const fillerCount = isMobile ? 16 : 30;
   for (let row = 0; row < 2; row++) {
     for (let i = 0; i < fillerCount; i++) {
       const xPct = ((i + (row ? 0.68 : 0.18)) / fillerCount) * 98 + 1 + (rand() * 3 - 1.5);
-      const heightRatio = row === 0 ? 0.23 + rand() * 0.2 : 0.42 + rand() * 0.19;
-      const baseSize = row === 0 ? 112 : 92;
+      const heightRatio = row === 0 ? 0.22 + rand() * 0.2 : 0.41 + rand() * 0.19;
+      const baseSize = row === 0 ? 114 : 94;
       flowerItems.push({
         xPct: Math.max(1, Math.min(99, xPct)),
         sizePx: Math.floor((baseSize + rand() * 42) * sizeScale),
@@ -324,10 +324,13 @@ function buildGarden() {
     }
   }
 
-  // Tạo phần tử DOM cho toàn bộ khu vườn
+  // Tạo phần tử DOM tối ưu hóa hiệu năng cao bằng DocumentFragment
+  const fragment = document.createDocumentFragment();
+
   flowerItems.forEach((item, idx) => {
     const distFromCenter = Math.abs(item.xPct - 50) / 50;
-    const delay = (0.2 + distFromCenter * 1.3 + rand() * 0.7).toFixed(2);
+    // Tốc độ bung nở nhanh, gối đầu nhịp nhàng siêu tốc
+    const delay = (0.04 + distFromCenter * 0.42 + rand() * 0.22).toFixed(2);
     const swayDuration = (3.8 + rand() * 2.2).toFixed(1) + 's';
     const swayDelay = (-rand() * 4).toFixed(1) + 's';
     const baseRot = ((rand() - 0.5) * 4).toFixed(1) + 'deg';
@@ -383,16 +386,18 @@ function buildGarden() {
       flowerEl.style.transform = 'scale(1.1) translateY(-6px)';
       setTimeout(() => {
         flowerEl.style.transform = '';
-      }, 400);
+      }, 300);
     });
 
-    container.appendChild(flowerEl);
+    fragment.appendChild(flowerEl);
     gardenFlowersData.push({ element: flowerEl, delay: parseFloat(delay) });
   });
+
+  container.appendChild(fragment);
 }
 
 // =============================================================================
-// 7. KỊCH BẢN NỞ HOA & ĐIỀU KHIỂN
+// 7. KỊCH BẢN NỞ HOA & ĐIỀU KHIỂN (TỐC ĐỘ SIÊU NHANH & MƯỢT MÀ)
 // =============================================================================
 let hasBloomed = false;
 let isBlooming = false;
@@ -410,10 +415,10 @@ function triggerGardenBloom() {
   if (heroIndicator) heroIndicator.style.display = 'none';
 
   if (heroWrapper) {
-    heroWrapper.style.transform = 'translateX(-50%) scale(1.08)';
+    heroWrapper.style.transform = 'translateX(-50%) scale(1.06)';
     setTimeout(() => {
       heroWrapper.style.transform = 'translateX(-50%) scale(1.0)';
-    }, 600);
+    }, 450);
   }
 
   const introContainer = document.getElementById('intro-text-box');
@@ -429,6 +434,7 @@ function triggerGardenBloom() {
     }, item.delay * 1000);
   });
 
+  // Tốc độ hoàn tất nhanh gọn, hiển thị thiệp và nút điều khiển mượt mà
   setTimeout(() => {
     hasBloomed = true;
     isBlooming = false;
@@ -444,9 +450,9 @@ function triggerGardenBloom() {
 
     setTimeout(() => {
       openCardModal();
-    }, 1400);
+    }, 750);
 
-  }, 3200);
+  }, 1350);
 }
 
 function resetGardenBloom() {
@@ -476,7 +482,7 @@ function resetGardenBloom() {
 
   setTimeout(() => {
     buildGarden();
-  }, 400);
+  }, 250);
 }
 
 // =============================================================================

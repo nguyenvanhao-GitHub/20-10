@@ -423,7 +423,8 @@ html, body {
   opacity: 0;
   pointer-events: auto;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
+  will-change: transform, opacity;
 }
 
 .garden-flower:hover {
@@ -447,6 +448,8 @@ html, body {
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
+  filter: drop-shadow(0 5px 12px rgba(60, 20, 30, 0.16));
+  will-change: transform;
 }
 
 .bud-head {
@@ -464,21 +467,21 @@ html, body {
   pointer-events: none;
 }
 
-/* Hiệu ứng nở rộ (Bloom animation) */
+/* Hiệu ứng nở rộ (Bloom animation) siêu tốc và mượt mà */
 .garden-flower.bloomed {
   opacity: 1;
-  animation: plantSprout 1.5s cubic-bezier(0.18, 0.89, 0.32, 1.25) forwards,
+  animation: plantSprout 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards,
              windSway var(--sway-duration, 4.5s) ease-in-out infinite alternate var(--sway-delay, 0s);
 }
 
 @keyframes plantSprout {
   0% {
     opacity: 0;
-    transform: translateY(140px) scale(0.1);
+    transform: translateY(110px) scale(0.15);
   }
-  60% {
+  65% {
     opacity: 1;
-    transform: translateY(-10px) scale(1.08);
+    transform: translateY(-8px) scale(1.06);
   }
   100% {
     opacity: 1;
