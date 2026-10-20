@@ -1,6 +1,6 @@
 /**
  * 20/10 - CẢ MỘT VƯỜN THƯƠNG
- * Tái tạo chính xác 100% hình ảnh khu vườn hoa và đóa hoa hồng trong ảnh 2
+ * Khu vườn hoa lấy cảm hứng từ ảnh mẫu, dùng ảnh hoa hồng cắt nền để giữ chi tiết cánh.
  */
 
 // =============================================================================
@@ -78,73 +78,22 @@ function polarToCart(cx, cy, r, angleDeg) {
 }
 
 // =============================================================================
-// 2. TẠO HÌNH HOA HỒNG TỰ NHIÊN (ORGANIC CABBAGE ROSE - KHÔNG CÓ NAN HOA/SPOKES)
+// 2. HOA HỒNG ẢNH CẮT NỀN, GIỮ KẾT CẤU CÁNH HOA THẬT
 // =============================================================================
+const ROSE_IMAGE_SRC = 'assets/rose-pink.png';
+const ROSE_COLOR_FILTERS = {
+  pink: 'none',
+  peach: 'hue-rotate(36deg) saturate(.86)',
+  mint: 'hue-rotate(128deg) saturate(.74)',
+  blue: 'hue-rotate(215deg) saturate(.8)',
+  cream: 'hue-rotate(72deg) saturate(.66)',
+  lavender: 'hue-rotate(298deg) saturate(.75)'
+};
 
-// Mỗi vòng là những mép cánh uốn cong liền nhau, không tạo các nan hoa hình quạt.
-function roseRingPath(radius, petals, rotation) {
-  let path = '';
-  const step = 360 / petals;
-  for (let i = 0; i < petals; i++) {
-    const a = rotation + i * step;
-    const start = polarToCart(80, 80, radius * 0.91, a);
-    const shoulder = polarToCart(80, 80, radius * 1.025, a + step * 0.21);
-    const crown = polarToCart(80, 80, radius * 1.055, a + step * 0.53);
-    const end = polarToCart(80, 80, radius * 0.91, a + step);
-    if (i === 0) path += `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} `;
-    path += `C ${shoulder.x.toFixed(1)} ${shoulder.y.toFixed(1)} ${crown.x.toFixed(1)} ${crown.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)} `;
-  }
-  return `${path}Z`;
+function createRoseImageHTML(palette) {
+  const colorFilter = ROSE_COLOR_FILTERS[palette.type] || 'none';
+  return `<img class="rose-bloom-image" src="${ROSE_IMAGE_SRC}" alt="" draggable="false" style="filter: ${colorFilter}">`;
 }
-
-function roseRimPath(radius, petals, rotation, index) {
-  const step = 360 / petals;
-  const a = rotation + index * step;
-  const start = polarToCart(80, 80, radius * 0.91, a);
-  const shoulder = polarToCart(80, 80, radius * 1.025, a + step * 0.21);
-  const crown = polarToCart(80, 80, radius * 1.055, a + step * 0.53);
-  const end = polarToCart(80, 80, radius * 0.91, a + step);
-  return `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} C ${shoulder.x.toFixed(1)} ${shoulder.y.toFixed(1)} ${crown.x.toFixed(1)} ${crown.y.toFixed(1)} ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
-}
-
-// Các lớp cánh chồng lên nhau như hoa giấy trong ảnh mẫu.
-function createOrganicRoseSVG(palette, uniqueId = 'rose') {
-  const { baseLight, baseMid, baseDark, coreColor, lineColor } = palette;
-  const gradientId = `petal-${uniqueId}`;
-  const shadowId = `shadow-${uniqueId}`;
-  let out = `<svg viewBox="0 0 160 160" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <radialGradient id="${gradientId}"><stop offset="0%" stop-color="${baseDark}"/><stop offset="66%" stop-color="${baseMid}"/><stop offset="100%" stop-color="${baseLight}"/></radialGradient>
-      <filter id="${shadowId}" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#744153" flood-opacity=".23"/></filter>
-    </defs>`;
-
-  const rings = [
-    { radius: 65, petals: 9, rotation: -7, opacity: 1 },
-    { radius: 57, petals: 8, rotation: 14, opacity: .94 },
-    { radius: 48, petals: 8, rotation: -2, opacity: .9 },
-    { radius: 40, petals: 7, rotation: 20, opacity: .87 },
-    { radius: 32, petals: 6, rotation: 0, opacity: .85 },
-    { radius: 24, petals: 5, rotation: 18, opacity: .82 },
-    { radius: 17, petals: 5, rotation: -9, opacity: .8 }
-  ];
-
-  rings.forEach((ring, layer) => {
-    const fill = layer === 0 ? baseLight : `url(#${gradientId})`;
-    out += `<path d="${roseRingPath(ring.radius, ring.petals, ring.rotation)}" fill="${fill}" fill-opacity="${ring.opacity}" stroke="${lineColor}" stroke-opacity=".36" stroke-width=".8" ${layer === 0 ? `filter="url(#${shadowId})"` : ''}/>`;
-    for (let i = 0; i < ring.petals; i++) {
-      const rim = roseRimPath(ring.radius, ring.petals, ring.rotation, i);
-      out += `<path d="${rim}" fill="none" stroke="${lineColor}" stroke-opacity=".48" stroke-width="1.35" stroke-linecap="round"/>`;
-      out += `<path d="${rim}" fill="none" stroke="#fffaf8" stroke-opacity=".9" stroke-width="1.35" stroke-linecap="round" transform="translate(0,-1.1)"/>`;
-    }
-  });
-
-  out += `<circle cx="80" cy="80" r="11" fill="${coreColor}" fill-opacity=".58" stroke="${baseLight}" stroke-width="1.4"/>
-    <path d="M 74 79 C 72 71 85 68 88 77 C 91 86 80 91 75 85 C 71 80 77 75 82 78 C 86 81 81 85 78 82" fill="none" stroke="${baseLight}" stroke-width="2.8" stroke-linecap="round"/>
-    <path d="M 74 79 C 72 71 85 68 88 77 C 91 86 80 91 75 85 C 71 80 77 75 82 78 C 86 81 81 85 78 82" fill="none" stroke="${lineColor}" stroke-opacity=".45" stroke-width=".7" stroke-linecap="round"/>
-  </svg>`;
-  return out;
-}
-
 // =============================================================================
 // 3. NỤ HOA (ROSEBUD - KHỚP CÁC NỤ XANH LAM, CAM TRÊN ẢNH 2)
 // =============================================================================
@@ -265,78 +214,81 @@ function buildGarden() {
   };
 
   const isMobile = window.innerWidth <= 768;
-  const containerHeight = container.clientHeight || (window.innerHeight * 0.72);
+  const containerHeight = container.clientHeight || window.innerHeight;
+  const sizeScale = isMobile ? 0.64 : 1;
+  const gardenColors = [0, 1, 2, 0, 3, 1, 2, 0, 4, 5];
+  const gardenPalette = index => COLOR_PALETTES[gardenColors[index % gardenColors.length]];
 
   // Danh sách các loài hoa được xếp theo 4 tầng lớp để tạo thảm hoa dày đặc không còn kẽ hở
   const flowerItems = [];
 
   // TẦNG 1: DƯỚI ĐÁY CÙNG (0% - 14% chiều cao) - 10 đóa hoa lớn xếp sát nhau gối lên nhau phủ kín đáy
-  const countT1 = isMobile ? 7 : 11;
+  const countT1 = isMobile ? 12 : 23;
   for (let i = 0; i < countT1; i++) {
     const xPct = (i / (countT1 - 1)) * 96 + 2 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor(115 + rand() * 22),
-      heightPx: Math.floor(containerHeight * (0.05 + rand() * 0.10)),
+      sizePx: Math.floor((100 + rand() * 33) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.05 + rand() * 0.16)),
       type: 'rose',
       layer: 28, // Trên cùng trong khu vườn
-      palette: COLOR_PALETTES[i % COLOR_PALETTES.length],
+      palette: gardenPalette(i),
       bend: (rand() - 0.5) * 15,
       hasStem: false // Đáy sát đất không lộ cành
     });
   }
 
   // TẦNG 2: TẦNG TRUNG TRƯỚC (12% - 28% chiều cao) - 12 đóa hoa lấp đầy các khe hở của tầng 1
-  const countT2 = isMobile ? 8 : 13;
+  const countT2 = isMobile ? 15 : 26;
   for (let i = 0; i < countT2; i++) {
     const xPct = ((i + 0.5) / countT2) * 94 + 3 + (rand() * 4 - 2);
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: Math.floor(95 + rand() * 20),
-      heightPx: Math.floor(containerHeight * (0.16 + rand() * 0.12)),
+      sizePx: Math.floor((82 + rand() * 28) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.22 + rand() * 0.17)),
       type: 'rose',
       layer: 22,
-      palette: COLOR_PALETTES[(i + 2) % COLOR_PALETTES.length],
+      palette: gardenPalette(i + 2),
       bend: (rand() - 0.5) * 20,
       hasStem: true
     });
   }
 
   // TẦNG 3: TẦNG TRUNG SAU (26% - 42% chiều cao) - 11 đóa hoa hồng & búp nụ xen kẽ
-  const countT3 = isMobile ? 7 : 12;
+  const countT3 = isMobile ? 13 : 24;
   for (let i = 0; i < countT3; i++) {
     const xPct = (i / (countT3 - 1)) * 92 + 4 + (rand() * 5 - 2.5);
-    const isBud = rand() < 0.35;
+    const isBud = rand() < 0.22;
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
-      sizePx: isBud ? 54 : Math.floor(80 + rand() * 18),
-      heightPx: Math.floor(containerHeight * (0.28 + rand() * 0.14)),
+      sizePx: Math.floor((isBud ? 49 : 66 + rand() * 22) * sizeScale),
+      heightPx: Math.floor(containerHeight * (0.39 + rand() * 0.2)),
       type: isBud ? 'bud' : 'rose',
       layer: 16,
-      palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : COLOR_PALETTES[(i + 4) % COLOR_PALETTES.length],
+      palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : gardenPalette(i + 4),
       bend: (rand() - 0.5) * 25,
       hasStem: true
     });
   }
 
   // TẦNG 4: TẦNG CÀNH CAO VƯƠN LÊN BẦU TRỜI (42% - 66% chiều cao) - Hoa cúc xoắn tròn & nụ hoa vươn cao như ảnh 2
-  const countT4 = isMobile ? 8 : 15;
+  const countT4 = isMobile ? 10 : 21;
   for (let i = 0; i < countT4; i++) {
     const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
     // Tránh vị trí giữa để không che bông hoa hồng Hero
     if (Math.abs(xPct - 50) < 9) continue;
 
     const r = rand();
-    const type = r < 0.45 ? 'button' : (r < 0.75 ? 'bud' : 'rose');
-    const sizePx = type === 'button' ? 44 : (type === 'bud' ? 50 : 66);
+    const type = r < 0.35 ? 'button' : (r < 0.58 ? 'bud' : 'rose');
+    const sizePx = Math.floor((type === 'button' ? 44 : (type === 'bud' ? 49 : 57)) * sizeScale);
 
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: sizePx,
-      heightPx: Math.floor(containerHeight * (0.45 + rand() * 0.20)),
+      heightPx: Math.floor(containerHeight * (0.6 + rand() * 0.23)),
       type: type,
       layer: 11,
-      palette: COLOR_PALETTES[i % COLOR_PALETTES.length],
+      palette: gardenPalette(i),
       bend: (rand() - 0.5) * 28,
       hasStem: true
     });
@@ -370,7 +322,7 @@ function buildGarden() {
     } else if (item.type === 'bud') {
       headWrap.innerHTML = createOrganicRoseBudSVG(item.palette, `g-${idx}`, item.sizePx);
     } else {
-      headWrap.innerHTML = createOrganicRoseSVG(item.palette, `g-${idx}`, item.sizePx);
+      headWrap.innerHTML = createRoseImageHTML(item.palette);
     }
 
     // Cành hoa
@@ -761,7 +713,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const heroHead = document.getElementById('hero-rose-head');
   if (heroHead) {
     const heroPalette = COLOR_PALETTES[0]; // Hồng phấn
-    heroHead.innerHTML = createOrganicRoseSVG(heroPalette, 'hero', 140);
+    heroHead.innerHTML = createRoseImageHTML(heroPalette);
   }
 
   const heroStem = document.getElementById('hero-stem-svg');
@@ -772,7 +724,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // 2. Dựng icon hoa trên thiệp
   const cardIcon = document.getElementById('card-rose-icon');
   if (cardIcon) {
-    cardIcon.innerHTML = createOrganicRoseSVG(COLOR_PALETTES[0], 'card-icon', 52);
+    cardIcon.innerHTML = createRoseImageHTML(COLOR_PALETTES[0]);
   }
 
   // 3. Chuẩn bị vườn hoa
