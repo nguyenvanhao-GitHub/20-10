@@ -130,61 +130,12 @@ function createOrganicButtonSVG(palette, uniqueId, size = 90) {
 }
 
 // =============================================================================
-// 5. CÀNH HOA VÀ LÁ TỰ NHIÊN (HERO STEM & GARDEN STEMS)
+// 5. CÀNH HOA VÀ LÁ CẮT NỀN TẠO THEO ẢNH MẪU
 // =============================================================================
+const STEM_IMAGE_SRC = 'assets/rose-stem-leaves.png';
 
-function createHeroStemSVG(heightPx) {
-  const widthPx = 160;
-  const cx = widthPx / 2;
-  return `
-  <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
-    <path d="M ${cx} 3 Q ${cx - 2} ${heightPx * .43} ${cx} ${heightPx}" fill="none" stroke="#235c35" stroke-width="2.3" stroke-linecap="round"/>
-    <!-- Lá trên nằm bên trái, hướng xuống như ảnh mẫu. -->
-    <path d="M ${cx} 24 Q ${cx - 12} 25 ${cx - 19} 17" fill="none" stroke="#235c35" stroke-width="1.4"/>
-    <path d="M ${cx - 2} 25 C ${cx - 10} 25 ${cx - 24} 21 ${cx - 31} 10 C ${cx - 32} 22 ${cx - 26} 34 ${cx - 15} 37 C ${cx - 8} 39 ${cx - 3} 33 ${cx - 2} 25 Z" fill="#247846" stroke="#185939" stroke-width="1"/>
-    <path d="M ${cx - 3} 26 Q ${cx - 17} 29 ${cx - 29} 12" fill="none" stroke="#78ad79" stroke-width=".9"/>
-    <!-- Lá giữa hướng lên về bên phải. -->
-    <path d="M ${cx} ${heightPx * .39} Q ${cx + 11} ${heightPx * .36} ${cx + 18} ${heightPx * .32}" fill="none" stroke="#235c35" stroke-width="1.4"/>
-    <path d="M ${cx + 1} ${heightPx * .39} C ${cx + 7} ${heightPx * .27} ${cx + 23} ${heightPx * .24} ${cx + 39} ${heightPx * .25} C ${cx + 35} ${heightPx * .34} ${cx + 23} ${heightPx * .40} ${cx + 1} ${heightPx * .39} Z" fill="#21804b" stroke="#185939" stroke-width="1"/>
-    <path d="M ${cx + 2} ${heightPx * .38} Q ${cx + 21} ${heightPx * .32} ${cx + 38} ${heightPx * .26}" fill="none" stroke="#89b47e" stroke-width=".9"/>
-  </svg>`;
-}
-
-function createGardenStemSVG(heightPx, bendPx = 0, leaves = []) {
-  const widthPx = 80;
-  const cx = widthPx / 2;
-  const topY = 10;
-  const botY = heightPx;
-  const midY = heightPx * 0.5;
-  const ctrlX = cx + bendPx;
-
-  let svg = `
-  <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
-    <path d="M ${cx} ${topY} Q ${ctrlX} ${midY} ${cx} ${botY}" fill="none" stroke="#447a4c" stroke-width="1.6" stroke-opacity=".78" stroke-linecap="round"/>
-  `;
-
-  leaves.forEach(leaf => {
-    const leafY = topY + (heightPx - topY) * leaf.pos;
-    const isLeft = leaf.side === 'left';
-    const angle = isLeft ? -leaf.angle : leaf.angle;
-    const scale = leaf.scale || 1.0;
-    const t = leaf.pos;
-    const stemX = (1 - t) * (1 - t) * cx + 2 * (1 - t) * t * ctrlX + t * t * cx;
-
-    svg += `
-      <g transform="translate(${stemX}, ${leafY}) rotate(${angle}) scale(${scale})">
-        <path d="M 0 0 Q ${isLeft ? -6 : 6} -3 ${isLeft ? -12 : 12} -4" fill="none" stroke="#275014" stroke-width="2" stroke-linecap="round"/>
-        <path d="M ${isLeft ? -10 : 10} -3 
-                 C ${isLeft ? -18 : 18} -14, ${isLeft ? -34 : 34} -12, ${isLeft ? -40 : 40} -3
-                 C ${isLeft ? -32 : 32} 6, ${isLeft ? -18 : 18} 5, ${isLeft ? -10 : 10} -3 Z"
-              fill="#2e631e" stroke="#1b3d11" stroke-width="1"/>
-        <path d="M ${isLeft ? -10 : 10} -3 Q ${isLeft ? -25 : 25} -4 ${isLeft ? -38 : 38} -3" fill="none" stroke="#84cc16" stroke-width="1.5" stroke-linecap="round"/>
-      </g>
-    `;
-  });
-
-  svg += `</svg>`;
-  return svg;
+function createStemImageHTML(flip = false) {
+  return `<img class="stem-leaves-image${flip ? ' flipped' : ''}" src="${STEM_IMAGE_SRC}" alt="" draggable="false" loading="eager" decoding="async">`;
 }
 
 // =============================================================================
@@ -386,18 +337,12 @@ function buildGarden() {
     // Cành hoa
     const showStem = item.hasStem && (item.layer === 7 || item.type !== 'rose' || rand() < 0.18);
     if (showStem) {
-      const leaves = [];
-      if (rand() > 0.3) {
-        leaves.push({ side: 'left', pos: 0.38 + rand() * 0.15, angle: 32 + rand() * 18, scale: 0.75 + rand() * 0.25 });
-      }
-      if (rand() > 0.35) {
-        leaves.push({ side: 'right', pos: 0.62 + rand() * 0.15, angle: 32 + rand() * 18, scale: 0.75 + rand() * 0.25 });
-      }
       const stemWrap = document.createElement('div');
       stemWrap.className = 'flower-stem-wrap';
       const stemLength = Math.min(item.heightPx, item.stemLengthPx);
       stemWrap.style.bottom = `${Math.max(0, item.heightPx - item.sizePx / 2 - stemLength + 10)}px`;
-      stemWrap.innerHTML = createGardenStemSVG(stemLength, item.bend, leaves);
+      stemWrap.style.height = `${stemLength}px`;
+      stemWrap.innerHTML = createStemImageHTML(item.bend < 0);
       flowerEl.appendChild(stemWrap);
     }
 
@@ -780,9 +725,9 @@ window.addEventListener('DOMContentLoaded', () => {
     heroHead.innerHTML = createRoseImageHTML(heroPalette);
   }
 
-  const heroStem = document.getElementById('hero-stem-svg');
+  const heroStem = document.getElementById('hero-stem-image');
   if (heroStem) {
-    heroStem.innerHTML = createHeroStemSVG(heroStem.clientHeight || 280);
+    heroStem.innerHTML = createStemImageHTML();
   }
 
   // 2. Dựng icon hoa trên thiệp
@@ -852,9 +797,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('resize', () => {
     if (!hasBloomed && !isBlooming) {
-      if (heroStem) {
-        heroStem.innerHTML = createHeroStemSVG(heroStem.clientHeight || 280);
-      }
       buildGarden();
     }
   });

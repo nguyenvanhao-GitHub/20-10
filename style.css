@@ -391,7 +391,7 @@ html, body {
 }
 
 /* Cành hoa Hero */
-.hero-stem-svg {
+.hero-stem-image {
   position: relative;
   width: 160px;
   height: calc(78vh - var(--hero-head-size) + 15px);
@@ -399,6 +399,23 @@ html, body {
   margin-top: -15px;
   z-index: 5;
   overflow: visible;
+}
+
+.stem-leaves-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.stem-leaves-image.flipped {
+  transform: scaleX(-1);
+}
+
+.hero-stem-image .stem-leaves-image {
+  width: 160px;
+  margin: 0 auto;
 }
 
 /* ==========================================================================
@@ -815,7 +832,7 @@ html, body {
     --hero-head-size: clamp(112px, 28vw, 175px);
     height: 63vh;
   }
-  .hero-stem-svg {
+  .hero-stem-image {
     height: calc(63vh - var(--hero-head-size) + 15px);
   }
   .hero-rose-head {
