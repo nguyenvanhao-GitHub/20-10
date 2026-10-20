@@ -80,7 +80,7 @@ function polarToCart(cx, cy, r, angleDeg) {
 // =============================================================================
 // 2. HOA HỒNG ẢNH CẮT NỀN, GIỮ KẾT CẤU CÁNH HOA THẬT
 // =============================================================================
-const ROSE_IMAGE_SRC = 'assets/rose-pink.png';
+const ROSE_IMAGE_SRC = 'assets/rose-pink.png?v=4';
 const ROSE_COLOR_FILTERS = {
   pink: 'saturate(.86) brightness(1.04)',
   peach: 'hue-rotate(36deg) saturate(.72) brightness(1.1)',
@@ -168,7 +168,7 @@ function createGardenStemSVG(heightPx, bendPx = 0, leaves = []) {
 
   let svg = `
   <svg width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}" overflow="visible" xmlns="http://www.w3.org/2000/svg">
-    <path d="M ${cx} ${topY} Q ${ctrlX} ${midY} ${cx} ${botY}" fill="none" stroke="#38761d" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M ${cx} ${topY} Q ${ctrlX} ${midY} ${cx} ${botY}" fill="none" stroke="#447a4c" stroke-width="1.6" stroke-opacity=".78" stroke-linecap="round"/>
   `;
 
   leaves.forEach(leaf => {
@@ -252,6 +252,7 @@ function buildGarden() {
       layer: 22,
       palette: gardenPalette(i + 2),
       bend: (rand() - 0.5) * 20,
+      stemLengthPx: Math.floor((55 + rand() * 30) * sizeScale),
       hasStem: true
     });
   }
@@ -269,12 +270,13 @@ function buildGarden() {
       layer: 16,
       palette: isBud ? (rand() < 0.5 ? COLOR_PALETTES[3] : COLOR_PALETTES[1]) : gardenPalette(i + 4),
       bend: (rand() - 0.5) * 25,
+      stemLengthPx: Math.floor((65 + rand() * 35) * sizeScale),
       hasStem: true
     });
   }
 
   // Lớp sau tạo mép trên nhấp nhô của thảm hoa.
-  const countT4 = isMobile ? 12 : 25;
+  const countT4 = isMobile ? 15 : 30;
   for (let i = 0; i < countT4; i++) {
     const xPct = (i / (countT4 - 1)) * 92 + 4 + (rand() * 6 - 3);
     const r = rand();
@@ -289,12 +291,13 @@ function buildGarden() {
       layer: 11,
       palette: gardenPalette(i),
       bend: (rand() - 0.5) * 28,
+      stemLengthPx: Math.floor((80 + rand() * 35) * sizeScale),
       hasStem: true
     });
   }
 
   // Một ít hoa và nụ vươn cao hai bên, như phần nền xa trong ảnh mẫu.
-  const countT5 = isMobile ? 8 : 17;
+  const countT5 = isMobile ? 6 : 10;
   for (let i = 0; i < countT5; i++) {
     const xPct = (i / (countT5 - 1)) * 94 + 3 + (rand() * 3 - 1.5);
     if (Math.abs(xPct - 50) < 8) continue;
@@ -303,11 +306,12 @@ function buildGarden() {
     flowerItems.push({
       xPct: Math.max(1, Math.min(99, xPct)),
       sizePx: Math.floor((type === 'bud' ? 44 : 54 + rand() * 30) * sizeScale),
-      heightPx: Math.floor(containerHeight * (0.65 + rand() * 0.18)),
+      heightPx: Math.floor(containerHeight * (0.63 + rand() * 0.13)),
       type,
       layer: 7,
       palette: gardenPalette(i + 5),
       bend: (rand() - 0.5) * 25,
+      stemLengthPx: Math.floor((110 + rand() * 30) * sizeScale),
       hasStem: true
     });
   }
@@ -344,7 +348,8 @@ function buildGarden() {
     }
 
     // Cành hoa
-    if (item.hasStem) {
+    const showStem = item.hasStem && (item.layer === 7 || item.type !== 'rose' || rand() < 0.18);
+    if (showStem) {
       const leaves = [];
       if (rand() > 0.3) {
         leaves.push({ side: 'left', pos: 0.38 + rand() * 0.15, angle: 32 + rand() * 18, scale: 0.75 + rand() * 0.25 });
@@ -354,7 +359,9 @@ function buildGarden() {
       }
       const stemWrap = document.createElement('div');
       stemWrap.className = 'flower-stem-wrap';
-      stemWrap.innerHTML = createGardenStemSVG(item.heightPx, item.bend, leaves);
+      const stemLength = Math.min(item.heightPx, item.stemLengthPx);
+      stemWrap.style.bottom = `${Math.max(0, item.heightPx - item.sizePx / 2 - stemLength + 10)}px`;
+      stemWrap.innerHTML = createGardenStemSVG(stemLength, item.bend, leaves);
       flowerEl.appendChild(stemWrap);
     }
 
